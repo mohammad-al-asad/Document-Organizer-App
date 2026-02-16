@@ -1,5 +1,5 @@
 import { BG } from "@/components/BG";
-import { CustomButton } from "@/components/CustomButtom";
+import { CustomButton } from "@/components/CustomButton";
 import FeedbackModal from "@/components/FeedbackModal";
 import { colors } from "@/config/colors";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -41,7 +41,7 @@ const VerifyOtpScreen: React.FC = () => {
           <FeedbackModal
             message="Your Account Is Ready!"
             visible={isModal}
-            onClose={() => router.replace("(protected)")}
+            onClose={() => router.replace("/(protected)/(tab)/(home)")}
           />
           {/* Brand Header */}
           <View style={styles.inner}>

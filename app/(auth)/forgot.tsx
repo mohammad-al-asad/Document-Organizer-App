@@ -1,5 +1,5 @@
 import { BG } from "@/components/BG";
-import { CustomButton } from "@/components/CustomButtom";
+import { CustomButton } from "@/components/CustomButton";
 import CustomInput from "@/components/CustomInput";
 import { colors } from "@/config/colors";
 import { useRouter } from "expo-router";

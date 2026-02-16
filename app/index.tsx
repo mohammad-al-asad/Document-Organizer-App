@@ -1,5 +1,6 @@
 import { BG } from "@/components/BG";
-import { CustomButton } from "@/components/CustomButtom";
+import { CustomButton } from "@/components/CustomButton";
+import SplashScreen from "@/components/Splash";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
@@ -29,7 +30,23 @@ const DATA = [
 
 export default function OnboardingScreen() {
   const [step, setStep] = useState(0);
+  const [isSplash, setIsSplash] = useState(true);
+  const isLogged = true; // Replace with real auth logic
 
+  if (isSplash) {
+    return (
+      <SplashScreen
+        onFinish={() => {
+          if (isLogged) {
+            router.replace("/(protected)/(tab)/(home)");
+          } else {
+            router.replace("/(auth)");
+          }
+          setIsSplash(false);
+        }}
+      />
+    );
+  }
   const nextStep = () => {
     if (step < DATA.length - 1) setStep(step + 1);
     else router.replace("/(auth)");
