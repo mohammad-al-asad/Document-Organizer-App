@@ -25,5 +25,5 @@ export const BG = ({
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: scale(20) },
+  container: { flex: 1, paddingHorizontal: scale(15) },
 });

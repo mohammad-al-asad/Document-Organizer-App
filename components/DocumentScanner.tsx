@@ -1,10 +1,5 @@
 import { colors } from "@/config/colors";
-import {
-  CameraCapturedPicture,
-  CameraView,
-  FlashMode,
-  useCameraPermissions,
-} from "expo-camera";
+import { CameraView, FlashMode } from "expo-camera";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   CreditCard,
@@ -22,6 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import ImagePicker from "react-native-image-crop-picker";
 import { scale, verticalScale } from "react-native-size-matters";
 
 const { width, height } = Dimensions.get("window");
@@ -33,8 +29,6 @@ const MODES = [
 ];
 
 export default function DocumentScanner({ onClose, onSave, openGallery }: any) {
-  const [permission, requestPermission] = useCameraPermissions();
-  const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
   const [flash, setFlash] = useState<FlashMode>("off");
   const [mode, setMode] = useState("Scan");
   const [isAuto, setIsAuto] = useState(false);
@@ -62,18 +56,6 @@ export default function DocumentScanner({ onClose, onSave, openGallery }: any) {
 
   const guideSize = getGuideSize();
 
-  if (!permission) return null;
-
-  if (!permission.granted) {
-    return (
-      <View style={styles.center}>
-        <TouchableOpacity onPress={requestPermission} style={styles.shutterBtn}>
-          <Text style={{ color: "white" }}>Grant Permission</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
   const takePicture = async () => {
     if (!cameraRef.current) return;
 
@@ -82,7 +64,18 @@ export default function DocumentScanner({ onClose, onSave, openGallery }: any) {
       skipProcessing: true,
     });
 
-    setPhoto(data);
+    ImagePicker.openCropper({
+      path: data.uri,
+      freeStyleCropEnabled: true,
+      mediaType: "photo",
+      cropping: true,
+      cropperToolbarTitle: "Adjust Document",
+      cropperToolbarColor: "#0f172a",
+      cropperToolbarWidgetColor: "#ffffff",
+      cropperActiveWidgetColor: "#14b8a6",
+    }).then((image) => {
+      onSave(image);
+    });
   };
 
   const handleAutoCapture = async () => {
@@ -91,32 +84,6 @@ export default function DocumentScanner({ onClose, onSave, openGallery }: any) {
       takePicture();
     }, 1200);
   };
-
-  const handleSave = () => {
-    if (!photo) return;
-    onSave(photo); // save full image
-  };
-
-  // ================= PREVIEW =================
-  if (photo) {
-    return (
-      <View style={styles.container}>
-        <Image source={{ uri: photo.uri }} style={styles.previewImage} />
-
-        <View style={styles.bottomActions}>
-          <TouchableOpacity onPress={() => setPhoto(null)}>
-            <Text style={styles.actionText}>Retake</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleSave}>
-            <Text style={[styles.actionText, { color: colors.main }]}>
-              Save
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
 
   // ================= CAMERA =================
   return (
@@ -162,7 +129,7 @@ export default function DocumentScanner({ onClose, onSave, openGallery }: any) {
           >
             {/* Shutter Row */}
             <View style={styles.shutter}>
-              <TouchableOpacity onPress={() => openGallery(setPhoto)}>
+              <TouchableOpacity onPress={openGallery}>
                 <Image
                   style={styles.historyBtn}
                   source={require("@/assets/images/icon.png")}

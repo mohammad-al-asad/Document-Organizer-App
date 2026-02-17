@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(30),
     alignItems: "center",
     width: "100%",
-    marginVertical: verticalScale(18),
+    marginBottom: 20,
   },
   text: {
     color: colors.btnText,

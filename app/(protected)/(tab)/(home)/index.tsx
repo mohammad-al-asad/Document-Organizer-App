@@ -1,4 +1,5 @@
 import { BG } from "@/components/BG";
+import { router } from "expo-router";
 import {
   AlertTriangle,
   Bell,
@@ -43,7 +44,12 @@ export default function Dashboard() {
                 <Text style={styles.titleText}>Hi, Alex</Text>
               </View>
             </View>
-            <TouchableOpacity style={styles.notificationBtn}>
+            <TouchableOpacity
+              style={styles.notificationBtn}
+              onPress={() =>
+                router.push("/(protected)/(tab)/(home)/notification")
+              }
+            >
               <Bell color="white" size={24} />
               <View style={styles.badge} />
             </TouchableOpacity>

@@ -1,6 +1,7 @@
 import { BG } from "@/components/BG";
 import { CustomButton } from "@/components/CustomButton";
 import DocumentScanner from "@/components/DocumentScanner";
+import { router } from "expo-router";
 import {
   ArrowLeft,
   Camera,
@@ -19,45 +20,49 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
+import ImagePicker from "react-native-image-crop-picker";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DocumentsAndNotes() {
   const [isScanning, setIsScanning] = useState(false);
-    const [photo, setPhoto] = useState<any>(null);
+  const [photo, setPhoto] = useState<any>(null);
 
-const openGallery = async (setPhoto:any) => {
-  // Ask permission first
-  const { status } =
-    await ImagePicker.requestMediaLibraryPermissionsAsync();
+  const openGallery = async () => {
+    // Ask permission first
+    // if (status !== "granted") {
+    //   alert("Permission to access gallery is required!");
+    //   return;
+    // }
 
-  if (status !== "granted") {
-    alert("Permission to access gallery is required!");
-    return;
-  }
+    try {
+      const result = await ImagePicker.openPicker({
+        freeStyleCropEnabled: true,
+        mediaType: "photo",
+        cropping: true,
+        cropperToolbarTitle: "Adjust Document",
+        cropperToolbarColor: "#0f172a",
+        cropperToolbarWidgetColor: "#ffffff",
+        cropperActiveWidgetColor: "#14b8a6",
+      });
+      onSave(result);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: false,
-    quality: 1,
-  });
-
-  if (!result.canceled) {
-    const selectedImage = result.assets[0];
-    setPhoto(selectedImage); // reuse your preview state
-  }
-};
+  const onSave = (photo: any) => {
+    setPhoto(photo);
+    console.log("Photo Captured", photo);
+    setIsScanning(false);
+  };
 
   if (isScanning) {
     return (
       <DocumentScanner
         onClose={() => setIsScanning(false)}
-        onSave={(photo:any) => {
-          console.log("Photo Captured", photo.uri);
-          setIsScanning(false);
-        }}
         openGallery={openGallery}
+        onSave={onSave}
       />
     );
   }
@@ -66,7 +71,7 @@ const openGallery = async (setPhoto:any) => {
       <SafeAreaView style={{ flex: 1 }}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.back()}>
             <ArrowLeft color="white" size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Documents & Notes</Text>
@@ -87,7 +92,10 @@ const openGallery = async (setPhoto:any) => {
             </View>
 
             {/* Dashed Dropzone */}
-            <TouchableOpacity style={styles.dropzone}>
+            <TouchableOpacity
+              onPress={() => setIsScanning(true)}
+              style={styles.dropzone}
+            >
               <View style={styles.iconRow}>
                 <View style={styles.roundIconBox}>
                   <Camera color="#14b8a6" size={22} />
@@ -108,7 +116,10 @@ const openGallery = async (setPhoto:any) => {
               <Text style={styles.scanDocText}>Scan Doc</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.uploadFileBtn} onPress={()=>openGallery(setPhoto)}>
+            <TouchableOpacity
+              style={styles.uploadFileBtn}
+              onPress={() => openGallery()}
+            >
               <FileUp color="white" size={20} style={{ marginRight: 10 }} />
               <Text style={styles.uploadFileText}>Upload File</Text>
             </TouchableOpacity>
@@ -141,25 +152,28 @@ const openGallery = async (setPhoto:any) => {
               />
             </View>
           </View>
-
-          {/* Save Button */}
-          <CustomButton
-            title="Save Record"
-            onPress={() => console.log("Record Saved")}
-            style={styles.saveBtn}
-            textStyle={styles.saveBtnText}
-          >
-            {/* Note: Your CustomButton might need adjustment to accept children for the icon */}
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <CheckCircle
-                color="#1e293b"
-                size={20}
-                style={{ marginRight: 8 }}
-              />
-              <Text style={styles.saveBtnText}>Save Record</Text>
-            </View>
-          </CustomButton>
         </ScrollView>
+        {/* Save Button */}
+        <CustomButton
+          title="Save Record"
+          onPress={() => {
+            console.log(photo);
+            router.push({
+              pathname: "/(protected)/new/details",
+              params: {
+                photo: JSON.stringify(photo),
+              },
+            });
+          }}
+          style={styles.saveBtn}
+          textStyle={styles.saveBtnText}
+        >
+          {/* Note: Your CustomButton might need adjustment to accept children for the icon */}
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <CheckCircle color="#1e293b" size={20} style={{ marginRight: 8 }} />
+            <Text style={styles.saveBtnText}>Save Record</Text>
+          </View>
+        </CustomButton>
       </SafeAreaView>
     </BG>
   );
@@ -182,7 +196,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#1e293b",
     borderRadius: 20,
     padding: 20,
-    marginBottom: 20,
+    marginBottom: 15,
   },
   cardHeader: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
   cardTitle: { color: "white", fontSize: 16, fontWeight: "bold" },

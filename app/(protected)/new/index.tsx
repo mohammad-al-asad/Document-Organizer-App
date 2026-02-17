@@ -110,14 +110,13 @@ export default function AddNewRecord() {
               style={styles.textArea}
             />
           </View>
-
-          {/* Primary Action Button */}
-          <CustomButton
-            title="Continue"
-            onPress={() => router.push("/(protected)/new/upload")}
-            style={styles.continueBtn}
-          />
         </ScrollView>
+        {/* Primary Action Button */}
+        <CustomButton
+          title="Continue"
+          onPress={() => router.push("/(protected)/new/upload")}
+          style={styles.continueBtn}
+        />
       </SafeAreaView>
     </BG>
   );
@@ -154,7 +153,7 @@ const styles = StyleSheet.create({
   headerTitle: { color: "white", fontSize: 16, fontWeight: "bold" },
   cancelText: { color: "#9ca3af", fontSize: 16 },
 
-  scrollContent: { paddingBottom: 40 },
+  scrollContent: { paddingBottom: 20 },
   heroTitle: {
     color: "white",
     fontSize: 26,
@@ -177,7 +176,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
     fontWeight: "bold",
-    marginBottom: 12,
+    marginBottom: 10 ,
     letterSpacing: 1,
   },
 
@@ -187,7 +186,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#1e293b",
     borderRadius: 15,
     padding: 15,
-    marginBottom: 25,
+    marginBottom: 20,
   },
   categoryIconBox: {
     width: 45,
@@ -204,7 +203,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 15,
   },
   typeCard: {
     width: "48%",
@@ -212,7 +211,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingVertical: 25,
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: "transparent",
   },
