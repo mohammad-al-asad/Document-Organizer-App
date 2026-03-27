@@ -28,7 +28,7 @@ export default function ChangePassword() {
         {/* Header - No extra side padding here to keep it clean */}
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={() => router.replace("/(protected)/(tab)/profile")}
             style={styles.headerBtn}
           >
             <ArrowLeft color={colors.text} size={24} />

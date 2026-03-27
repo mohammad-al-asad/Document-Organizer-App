@@ -2,20 +2,65 @@ import { BG } from "@/components/BG";
 import { CustomButton } from "@/components/CustomButton";
 import CustomInput from "@/components/CustomInput";
 import { colors } from "@/config/colors";
-import { useRouter } from "expo-router";
+import { getErrorMessage } from "@/lib/api-error";
+import { useSetNewPasswordMutation } from "@/store/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Lock } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Controller, useForm } from "react-hook-form";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { verticalScale } from "react-native-size-matters";
 import { HeaderLogo } from "./forgot";
+import { z } from "zod";
+
+const passwordSchema = z
+  .object({
+    newPassword: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Confirm your password"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 export default function SetPasswordFormScreen() {
   const router = useRouter();
+  const { email } = useLocalSearchParams<{ email?: string }>();
+  const [setNewPassword, { isLoading }] = useSetNewPasswordMutation();
+  const form = useForm<PasswordFormValues>({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
 
-  const setPassword = () => {
-    router.replace("/(auth)");
-  };
+  async function updatePassword(values: PasswordFormValues) {
+    if (!email) {
+      Alert.alert("Reset password", "Missing email for password reset.");
+      return;
+    }
+
+    try {
+      const response = await setNewPassword({
+        email,
+        ...values,
+      }).unwrap();
+
+      Alert.alert("Password updated", response.message, [
+        {
+          text: "OK",
+          onPress: () => router.replace("/(auth)"),
+        },
+      ]);
+    } catch (error) {
+      Alert.alert("Reset failed", getErrorMessage(error));
+    }
+  }
 
   return (
     <BG>
@@ -27,21 +72,44 @@ export default function SetPasswordFormScreen() {
         <Text style={styles.subtitle}>Password must have 6-8 characters.</Text>
 
         <View style={styles.form}>
-          <CustomInput
-            label="New Password"
-            icon={<Lock size={20} color={colors.subtleText} />}
-            placeholder="Create a strong password"
-            isPassword
+          <Controller
+            control={form.control}
+            name="newPassword"
+            render={({ field, fieldState }) => (
+              <CustomInput
+                label="New Password"
+                icon={<Lock size={20} color={colors.subtleText} />}
+                placeholder="Create a strong password"
+                isPassword
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                error={fieldState.error?.message}
+              />
+            )}
           />
-          <CustomInput
-            label="Confirm New Password"
-            icon={<Lock size={20} color={colors.subtleText} />}
-            placeholder="Create a strong password"
-            isPassword
+          <Controller
+            control={form.control}
+            name="confirmPassword"
+            render={({ field, fieldState }) => (
+              <CustomInput
+                label="Confirm New Password"
+                icon={<Lock size={20} color={colors.subtleText} />}
+                placeholder="Create a strong password"
+                isPassword
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                error={fieldState.error?.message}
+              />
+            )}
           />
 
-          {/* Replaced with CustomButton */}
-          <CustomButton title="Update Password" onPress={setPassword} />
+          <CustomButton
+            title={isLoading ? "Updating..." : "Update Password"}
+            onPress={form.handleSubmit(updatePassword)}
+            disabled={isLoading}
+          />
         </View>
         <TouchableOpacity
           style={styles.backButton}

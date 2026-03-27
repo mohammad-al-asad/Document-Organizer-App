@@ -2,6 +2,7 @@ import { BG } from "@/components/BG";
 import { CustomButton } from "@/components/CustomButton";
 import SplashScreen from "@/components/Splash";
 import { colors } from "@/config/colors";
+import { useAppSelector } from "@/store/hooks";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
@@ -32,7 +33,7 @@ const DATA = [
 export default function OnboardingScreen() {
   const [step, setStep] = useState(0);
   const [isSplash, setIsSplash] = useState(true);
-  const isLogged = false; // Replace with real auth logic
+  const isLogged = useAppSelector((state) => Boolean(state.auth.accessToken));
 
   if (isSplash) {
     return (

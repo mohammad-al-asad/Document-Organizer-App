@@ -16,6 +16,7 @@ interface CustomInputProps extends TextInputProps {
   placeholder: string;
   labelColor?: string;
   isPassword?: boolean;
+  error?: string;
 }
 
 const CustomInput = ({
@@ -23,14 +24,17 @@ const CustomInput = ({
   icon,
   placeholder,
   isPassword,
+  error,
   labelColor = colors.text,
+  onFocus,
+  onBlur,
   ...props
 }: CustomInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isEyeOpen, setIsEyeOpen] = useState(false);
 
   return (
-    <View>
+    <View style={styles.wrapper}>
       <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
 
       <View
@@ -47,8 +51,14 @@ const CustomInput = ({
           placeholderTextColor={colors.subtleText}
           style={styles.input}
           secureTextEntry={isPassword && !isEyeOpen}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={(event) => {
+            setIsFocused(true);
+            onFocus?.(event);
+          }}
+          onBlur={(event) => {
+            setIsFocused(false);
+            onBlur?.(event);
+          }}
         />
 
         {isPassword && (
@@ -60,6 +70,8 @@ const CustomInput = ({
           />
         )}
       </View>
+
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 };
@@ -67,6 +79,9 @@ const CustomInput = ({
 export default CustomInput;
 
 const styles = StyleSheet.create({
+  wrapper: {
+    gap: 6,
+  },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -87,7 +102,10 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: "700",
-    marginBottom: 8,
     fontSize: 13,
+  },
+  errorText: {
+    color: colors.danger,
+    fontSize: 12,
   },
 });

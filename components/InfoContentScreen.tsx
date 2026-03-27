@@ -28,7 +28,7 @@ const InfoContentScreen: React.FC<InfoContentScreenProps> = ({
         {/* Header - Consistent with previous screens */}
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={() => router.replace("/(protected)/(tab)/profile")}
             style={styles.headerBtn}
           >
             <ArrowLeft color={colors.text} size={24} />

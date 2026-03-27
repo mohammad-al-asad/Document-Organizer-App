@@ -2,15 +2,49 @@ import { BG } from "@/components/BG";
 import { CustomButton } from "@/components/CustomButton";
 import CustomInput from "@/components/CustomInput";
 import { colors } from "@/config/colors";
+import { getErrorMessage } from "@/lib/api-error";
+import { useSendOtpMutation } from "@/store/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { Mail } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Controller, useForm } from "react-hook-form";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { scale, verticalScale } from "react-native-size-matters";
+import { z } from "zod";
+
+const forgotSchema = z.object({
+  email: z.string().email("Enter a valid email"),
+});
+
+type ForgotFormValues = z.infer<typeof forgotSchema>;
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
+  const [sendOtp, { isLoading }] = useSendOtpMutation();
+  const form = useForm<ForgotFormValues>({
+    resolver: zodResolver(forgotSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
+  async function requestOtp(values: ForgotFormValues) {
+    try {
+      await sendOtp(values).unwrap();
+
+      router.replace({
+        pathname: "/(auth)/verify-otp",
+        params: {
+          email: values.email,
+          path: "/(auth)/set-password",
+        },
+      });
+    } catch (error) {
+      Alert.alert("Could not send OTP", getErrorMessage(error));
+    }
+  }
 
   return (
     <BG>
@@ -25,24 +59,29 @@ export default function ForgotPasswordScreen() {
           </Text>
 
           <View style={styles.form}>
-            <CustomInput
-              label="Email / Phone"
-              icon={<Mail size={20} color={colors.subtleText} />}
-              placeholder="Email"
+            <Controller
+              control={form.control}
+              name="email"
+              render={({ field, fieldState }) => (
+                <CustomInput
+                  label="Email"
+                  icon={<Mail size={20} color={colors.subtleText} />}
+                  placeholder="Email"
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                />
+              )}
             />
 
             <View style={styles.buttonSpacer}>
               <CustomButton
-                title="Request OTP"
-                onPress={() => {
-                  router.replace({
-                    pathname: "/(auth)/verify-otp",
-                    params: {
-                      email: "xyz@gmail.com",
-                      path: "/(auth)/set-password",
-                    },
-                  });
-                }}
+                title={isLoading ? "Sending..." : "Request OTP"}
+                onPress={form.handleSubmit(requestOtp)}
+                disabled={isLoading}
               />
             </View>
 

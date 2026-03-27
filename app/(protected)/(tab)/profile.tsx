@@ -1,9 +1,11 @@
 import { BG } from "@/components/BG";
 import { colors } from "@/config/colors";
+import { clearSession, useLogoutMutation } from "@/store/auth";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { router } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
-import React from "react";
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -14,6 +16,21 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
+  const [logout, { isLoading }] = useLogoutMutation();
+
+  async function handleLogout() {
+    try {
+      await logout().unwrap();
+    } catch (error) {
+      Alert.alert("Logout", "Session cleared on this device.");
+    } finally {
+      dispatch(clearSession());
+      router.replace("/(auth)");
+    }
+  }
+
   return (
     <BG style={styles.container}>
       <SafeAreaView style={{ flex: 1 }}>
@@ -29,7 +46,12 @@ export default function ProfileScreen() {
                 style={styles.avatar}
               />
             </View>
-            <Text style={styles.userName}>Alex Morgan</Text>
+            <View style={styles.profileInfo}>
+              <Text style={styles.userName}>
+                {user?.fullName || "Vault User"}
+              </Text>
+              <Text style={styles.userEmail}>{user?.email || ""}</Text>
+            </View>
           </View>
 
           {/* Menu Items */}
@@ -60,8 +82,13 @@ export default function ProfileScreen() {
             />
 
             {/* Logout Item */}
-            <TouchableOpacity style={styles.logoutItem}>
-              <Text style={styles.logoutText}>Logout</Text>
+            <TouchableOpacity
+              style={styles.logoutItem}
+              onPress={() => void handleLogout()}
+            >
+              <Text style={styles.logoutText}>
+                {isLoading ? "Logging out..." : "Logout"}
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -111,11 +138,17 @@ const styles = StyleSheet.create({
     height: "100%",
     borderRadius: 40,
   },
+  profileInfo: {
+    marginLeft: 20,
+  },
   userName: {
     color: colors.text,
     fontSize: 24,
     fontWeight: "bold",
-    marginLeft: 20,
+  },
+  userEmail: {
+    color: colors.mutedText,
+    fontSize: 14,
   },
 
   // Menu Styles
@@ -128,6 +161,11 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 20,
     borderRadius: 12,
+    elevation: 1,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   menuItemText: {
     color: colors.text,
@@ -148,6 +186,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 12,
     marginTop: 8,
+        elevation: 1,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   logoutText: {
     color: colors.danger,

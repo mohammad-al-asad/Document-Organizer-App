@@ -2,10 +2,28 @@ import { BG } from "@/components/BG";
 import { CustomButton } from "@/components/CustomButton";
 import CustomInput from "@/components/CustomInput";
 import { colors } from "@/config/colors";
+import { getErrorMessage } from "@/lib/api-error";
+import {
+  authenticateWithFaceLock,
+  canUseFaceLock,
+} from "@/lib/face-lock";
+import {
+  clearPendingSignup,
+  setPendingSignup,
+  setCredentials,
+  setFaceLockEnabled,
+  setFaceLockVerified,
+  useLoginMutation,
+  useSendOtpMutation,
+} from "@/store/auth";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
 import { Lock, Mail, ScanFace, User } from "lucide-react-native";
 import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Switch,
@@ -15,22 +33,117 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { scale, verticalScale } from "react-native-size-matters";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().email("Enter a valid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const signupSchema = loginSchema
+  .extend({
+    fullName: z.string().min(2, "Full name is required"),
+    confirmPassword: z.string().min(6, "Confirm your password"),
+    faceLockEnabled: z.boolean(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+type SignupFormValues = z.infer<typeof signupSchema>;
 
 export default function AuthScreen() {
+  const dispatch = useAppDispatch();
+  const { accessToken, faceLockEnabled } = useAppSelector((state) => state.auth);
   const [isSignup, setIsSignup] = useState(false);
-  const [twoStep, setTwoStep] = useState(false);
+  const [login, { isLoading: isLoggingIn }] = useLoginMutation();
+  const [sendOtp, { isLoading: isSendingOtp }] = useSendOtpMutation();
+  const loginForm = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+  const signupForm = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      faceLockEnabled: false,
+    },
+  });
 
-  function doAuth() {
-    if (isSignup) {
-      router.replace({
+  async function handleLogin(values: LoginFormValues) {
+    try {
+      const response = await login(values).unwrap();
+
+      dispatch(setCredentials(response.data));
+      router.replace("/(protected)/(tab)/(home)");
+    } catch (error) {
+      Alert.alert("Sign in failed", getErrorMessage(error));
+    }
+  }
+
+  async function handleSignup(values: SignupFormValues) {
+    try {
+      dispatch(setPendingSignup(values));
+      await sendOtp({ email: values.email }).unwrap();
+
+      router.push({
         pathname: "/(auth)/verify-otp",
         params: {
-          email: "xyz@gmail.com",
+          email: values.email,
+          mode: "signup",
         },
       });
-    } else {
-      router.replace("/(protected)/(tab)/(home)");
+    } catch (error) {
+      dispatch(clearPendingSignup());
+      Alert.alert("Could not send OTP", getErrorMessage(error));
     }
+  }
+
+  async function handleFaceLockSignIn() {
+    if (!accessToken || !faceLockEnabled) {
+      Alert.alert(
+        "Face Unlock",
+        "Sign in once and enable Face Unlock before using facial sign-in.",
+      );
+      return;
+    }
+
+    const result = await authenticateWithFaceLock();
+
+    if (!result.success) {
+      Alert.alert("Face Unlock", result.message);
+      return;
+    }
+
+    dispatch(setFaceLockVerified(true));
+    router.replace("/(protected)/(tab)/(home)");
+  }
+
+  async function toggleFaceLock(
+    value: boolean,
+    onChange: (enabled: boolean) => void,
+  ) {
+    if (!value) {
+      onChange(false);
+      return;
+    }
+
+    const supported = await canUseFaceLock();
+
+    if (!supported.supported) {
+      Alert.alert("Face Unlock unavailable", supported.message);
+      return;
+    }
+
+    onChange(true);
   }
 
   return (
@@ -39,6 +152,7 @@ export default function AuthScreen() {
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           {/* Brand Header */}
           <HeaderLogo />
@@ -47,7 +161,10 @@ export default function AuthScreen() {
           <View style={styles.tabContainer}>
             <TouchableOpacity
               style={[styles.tab, !isSignup && styles.activeTab]}
-              onPress={() => setIsSignup(false)}
+              onPress={() => {
+                dispatch(clearPendingSignup());
+                setIsSignup(false);
+              }}
             >
               <Text style={[styles.tabText, !isSignup && styles.activeTabText]}>
                 Sign In
@@ -65,67 +182,162 @@ export default function AuthScreen() {
 
           {/* Form Card */}
           <View style={styles.card}>
-            {isSignup && (
-              <CustomInput
-                label="Full Name"
-                icon={<User size={20} color={colors.subtleText} />}
-                placeholder="Enter your name"
-              />
-            )}
-
-            <CustomInput
-              label="Email / Phone"
-              icon={<Mail size={20} color={colors.subtleText} />}
-              placeholder="Enter email or phone number"
-            />
-
-            <CustomInput
-              label="Password"
-              icon={<Lock size={20} color={colors.subtleText} />}
-              placeholder="Create a strong password"
-              isPassword
-            />
-            {!isSignup && (
-              <TouchableOpacity style={styles.faceButton} onPress={doAuth}>
-                <View style={styles.faceButtonContent}>
-                  <ScanFace size={25} color={colors.text} />
-                  <Text style={styles.faceButtonText}>
-                    Sign in with Face ID
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
-
-            {isSignup && (
-              <>
-                <CustomInput
-                  label="Confirm Password"
-                  icon={<Lock size={20} color={colors.subtleText} />}
-                  placeholder="Retype password"
-                  isPassword
+            {isSignup ? (
+              <React.Fragment key="signup">
+                <Controller
+                  control={signupForm.control}
+                  name="fullName"
+                  render={({ field, fieldState }) => (
+                    <CustomInput
+                      label="Full Name"
+                      icon={<User size={20} color={colors.subtleText} />}
+                      placeholder="Enter your name"
+                      value={field.value}
+                      onChangeText={field.onChange}
+                      onBlur={field.onBlur}
+                      error={fieldState.error?.message}
+                    />
+                  )}
                 />
-                <View style={styles.switchRow}>
-                  <View>
-                    <Text style={styles.switchLabel}>Sign in with Face ID</Text>
-                    <Text style={styles.switchSub}>
-                      Adds extra security to your account
+                <Controller
+                  control={signupForm.control}
+                  name="email"
+                  render={({ field, fieldState }) => (
+                    <CustomInput
+                      label="Email"
+                      icon={<Mail size={20} color={colors.subtleText} />}
+                      placeholder="Enter your email"
+                      autoCapitalize="none"
+                      keyboardType="email-address"
+                      value={field.value}
+                      onChangeText={field.onChange}
+                      onBlur={field.onBlur}
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  control={signupForm.control}
+                  name="password"
+                  render={({ field, fieldState }) => (
+                    <CustomInput
+                      label="Password"
+                      icon={<Lock size={20} color={colors.subtleText} />}
+                      placeholder="Create a strong password"
+                      isPassword
+                      value={field.value}
+                      onChangeText={field.onChange}
+                      onBlur={field.onBlur}
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  control={signupForm.control}
+                  name="confirmPassword"
+                  render={({ field, fieldState }) => (
+                    <CustomInput
+                      label="Confirm Password"
+                      icon={<Lock size={20} color={colors.subtleText} />}
+                      placeholder="Retype password"
+                      isPassword
+                      value={field.value}
+                      onChangeText={field.onChange}
+                      onBlur={field.onBlur}
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  control={signupForm.control}
+                  name="faceLockEnabled"
+                  render={({ field }) => (
+                    <View style={styles.switchRow}>
+                      <View>
+                        <Text style={styles.switchLabel}>Enable Face Unlock</Text>
+                        <Text style={styles.switchSub}>
+                          Uses face recognition after you sign in
+                        </Text>
+                      </View>
+                      <Switch
+                        value={field.value}
+                        onValueChange={(value) =>
+                          void toggleFaceLock(value, field.onChange)
+                        }
+                        trackColor={{ false: colors.border, true: colors.main }}
+                        thumbColor={colors.surface}
+                        ios_backgroundColor={colors.border}
+                      />
+                    </View>
+                  )}
+                />
+              </React.Fragment>
+            ) : (
+              <React.Fragment key="login">
+                <Controller
+                  control={loginForm.control}
+                  name="email"
+                  render={({ field, fieldState }) => (
+                    <CustomInput
+                      label="Email"
+                      icon={<Mail size={20} color={colors.subtleText} />}
+                      placeholder="Enter your email"
+                      autoCapitalize="none"
+                      keyboardType="email-address"
+                      value={field.value}
+                      onChangeText={field.onChange}
+                      onBlur={field.onBlur}
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  control={loginForm.control}
+                  name="password"
+                  render={({ field, fieldState }) => (
+                    <CustomInput
+                      label="Password"
+                      icon={<Lock size={20} color={colors.subtleText} />}
+                      placeholder="Enter your password"
+                      isPassword
+                      value={field.value}
+                      onChangeText={field.onChange}
+                      onBlur={field.onBlur}
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+                <TouchableOpacity
+                  style={styles.faceButton}
+                  onPress={() => void handleFaceLockSignIn()}
+                >
+                  <View style={styles.faceButtonContent}>
+                    <ScanFace size={25} color={colors.text} />
+                    <Text style={styles.faceButtonText}>
+                      Sign in with Face Unlock
                     </Text>
                   </View>
-                  <Switch
-                    value={twoStep}
-                    onValueChange={setTwoStep}
-                    trackColor={{ false: colors.border, true: colors.main }}
-                    thumbColor={colors.surface}
-                    ios_backgroundColor={colors.border}
-                  />
-                </View>
-              </>
+                </TouchableOpacity>
+              </React.Fragment>
             )}
           </View>
 
           <CustomButton
-            title={isSignup ? "Create account" : "Sign In"}
-            onPress={doAuth}
+            title={
+              isSignup
+                ? isSendingOtp
+                  ? "Sending OTP..."
+                  : "Verify email"
+                : isLoggingIn
+                  ? "Signing in..."
+                  : "Sign In"
+            }
+            onPress={
+              isSignup
+                ? signupForm.handleSubmit(handleSignup)
+                : loginForm.handleSubmit(handleLogin)
+            }
+            disabled={isSignup ? isSendingOtp : isLoggingIn}
           />
           {!isSignup && (
             <TouchableOpacity
