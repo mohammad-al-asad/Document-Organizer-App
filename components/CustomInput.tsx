@@ -23,7 +23,7 @@ const CustomInput = ({
   icon,
   placeholder,
   isPassword,
-  labelColor = "#475569",
+  labelColor = colors.text,
   ...props
 }: CustomInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -44,7 +44,7 @@ const CustomInput = ({
         <TextInput
           {...props}
           placeholder={placeholder}
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.subtleText}
           style={styles.input}
           secureTextEntry={isPassword && !isEyeOpen}
           onFocus={() => setIsFocused(true)}
@@ -56,7 +56,7 @@ const CustomInput = ({
             onPress={() => setIsEyeOpen(!isEyeOpen)}
             name={isEyeOpen ? "eye" : "eye-off"}
             size={20}
-            color="#999"
+            color={colors.subtleText}
           />
         )}
       </View>
@@ -71,11 +71,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: 15,
     height: verticalScale(55),
-    backgroundColor: "white",
+    backgroundColor: colors.surface,
   },
   inputContainerFocused: {
     borderColor: colors.main,
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     marginLeft: 10,
-    color: "#1E293B",
+    color: colors.text,
   },
   label: {
     fontWeight: "700",

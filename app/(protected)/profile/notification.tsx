@@ -1,4 +1,5 @@
 import { BG } from "@/components/BG";
+import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import React, { useState } from "react";
@@ -23,7 +24,7 @@ export default function NotificationSettings() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
-            <ArrowLeft color="white" size={24} />
+            <ArrowLeft color={colors.text} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Notification</Text>
           <View style={{ width: 24 }} /> {/* Balance for back arrow */}
@@ -62,9 +63,9 @@ const NotificationToggle = ({ label, isEnabled, onToggle }: any) => (
   <View style={styles.toggleCard}>
     <Text style={styles.toggleLabel}>{label}</Text>
     <Switch
-      trackColor={{ false: "#334155", true: "#14b8a6" }}
-      thumbColor={"#f8fafc"}
-      ios_backgroundColor="#334155"
+      trackColor={{ false: colors.border, true: colors.main }}
+      thumbColor={colors.surface}
+      ios_backgroundColor={colors.border}
       onValueChange={onToggle}
       value={isEnabled}
     />
@@ -80,7 +81,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   headerTitle: {
-    color: "white",
+    color: colors.text,
     fontSize: 20,
     fontWeight: "600",
   },
@@ -94,13 +95,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#1e293b", // Matches previous card colors
+    backgroundColor: colors.secondary,
     paddingVertical: 20,
     paddingHorizontal: 20,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   toggleLabel: {
-    color: "white",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "500",
   },

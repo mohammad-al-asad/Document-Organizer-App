@@ -1,4 +1,5 @@
-import { router, usePathname } from "expo-router";
+import { colors } from "@/config/colors";
+import { router } from "expo-router";
 import {
   TabList,
   Tabs,
@@ -41,7 +42,7 @@ export default function RootLayout() {
           style={styles.fabTrigger}
         >
           <View style={styles.fab}>
-            <Plus color="black" size={28} strokeWidth={2.5} />
+            <Plus color={colors.text} size={28} strokeWidth={2.5} />
           </View>
         </Pressable>
         {/* </TabTrigger> */}
@@ -72,7 +73,7 @@ function CustomTabTrigger({
 }: TabButtonProps) {
   return (
     <Pressable {...props} style={styles.tabTrigger}>
-      <Icon color={isFocused ? "#14b8a6" : "#9ca3af"} size={24} />
+      <Icon color={isFocused ? colors.main : colors.mutedText} size={24} />
       <Text style={[styles.label, isFocused && styles.labelActive]}>
         {label}
       </Text>
@@ -83,15 +84,15 @@ function CustomTabTrigger({
 const styles = StyleSheet.create({
   tabsContainer: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: colors.secondary,
   },
 
   tabList: {
     flexDirection: "row",
     height: 70,
-    backgroundColor: "#0f172a",
+    backgroundColor: colors.secondary,
     borderTopWidth: 1,
-    borderTopColor: "#1e293b",
+    borderTopColor: colors.border,
     alignItems: "center",
     justifyContent: "space-around",
     position: "relative",
@@ -106,11 +107,11 @@ const styles = StyleSheet.create({
 
   label: {
     fontSize: 11,
-    color: "#9ca3af",
+    color: colors.mutedText,
   },
 
   labelActive: {
-    color: "#14b8a6",
+    color: colors.text,
     fontWeight: "600",
   },
 
@@ -126,11 +127,9 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: "#14b8a6",
+    backgroundColor: colors.main,
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 6,
-    borderColor: "#0f172a",
 
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 6 },

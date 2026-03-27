@@ -29,15 +29,13 @@ export default function SetPasswordFormScreen() {
         <View style={styles.form}>
           <CustomInput
             label="New Password"
-            labelColor="#fff"
-            icon={<Lock size={20} color="#999" />}
+            icon={<Lock size={20} color={colors.subtleText} />}
             placeholder="Create a strong password"
             isPassword
           />
           <CustomInput
             label="Confirm New Password"
-            labelColor="#fff"
-            icon={<Lock size={20} color="#999" />}
+            icon={<Lock size={20} color={colors.subtleText} />}
             placeholder="Create a strong password"
             isPassword
           />
@@ -62,12 +60,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logoText: {
-    color: "white",
+    color: colors.text,
     fontSize: 36,
     fontWeight: "800",
     marginVertical: 40,
   },
-  title: { fontSize: 26, fontWeight: "700", color: "#fff", marginBottom: 8 },
+  title: { fontSize: 26, fontWeight: "700", color: colors.text, marginBottom: 8 },
   subtitle: {
     fontSize: 14,
     color: colors.secondaryText,
@@ -77,7 +75,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#444",
+    color: colors.text,
     marginBottom: 8,
     marginLeft: 2,
   },

@@ -37,12 +37,13 @@ export const CustomButton = ({
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: colors.btn,
-    paddingVertical: verticalScale(16),
+    backgroundColor: colors.main,
+    paddingVertical: verticalScale(13),
     borderRadius: scale(30),
     alignItems: "center",
     width: "100%",
     marginBottom: 20,
+    marginTop: 20,
   },
   text: {
     color: colors.btnText,

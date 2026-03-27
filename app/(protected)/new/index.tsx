@@ -1,5 +1,6 @@
 import { BG } from "@/components/BG";
 import { CustomButton } from "@/components/CustomButton";
+import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import {
   ArrowLeft,
@@ -31,7 +32,7 @@ export default function AddNewRecord() {
         {/* Header Navigation */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
-            <ArrowLeft color="white" size={24} />
+            <ArrowLeft color={colors.text} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Add New Record</Text>
           <TouchableOpacity>
@@ -52,7 +53,7 @@ export default function AddNewRecord() {
           <View style={styles.inputWrapper}>
             <TextInput
               placeholder="Record Title"
-              placeholderTextColor="#64748b"
+              placeholderTextColor={colors.mutedText}
               style={styles.textInput}
             />
           </View>
@@ -61,13 +62,13 @@ export default function AddNewRecord() {
           <Text style={styles.label}>CATEGORY</Text>
           <TouchableOpacity style={styles.categorySelector}>
             <View style={styles.categoryIconBox}>
-              <Folder color="#3b82f6" size={20} />
+              <Folder color={colors.main} size={20} />
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <Text style={styles.categoryPlaceholder}>Select Category</Text>
               <Text style={styles.categorySub}>Choose where this belongs</Text>
             </View>
-            <ChevronDown color="#64748b" size={20} />
+            <ChevronDown color={colors.mutedText} size={20} />
           </TouchableOpacity>
 
           {/* Type Selection Grid */}
@@ -104,7 +105,7 @@ export default function AddNewRecord() {
             <Text style={styles.descLabel}>Short Description (Optional)</Text>
             <TextInput
               placeholder="Desc."
-              placeholderTextColor="#64748b"
+              placeholderTextColor={colors.mutedText}
               multiline
               numberOfLines={4}
               style={styles.textArea}
@@ -130,11 +131,11 @@ const TypeCard = ({ title, icon, selected, onPress }: any) => (
   >
     {selected && (
       <View style={styles.checkIcon}>
-        <CheckCircle2 color="#3b82f6" size={16} fill="#0f172a" />
+        <CheckCircle2 color={colors.main} size={16} />
       </View>
     )}
     <View style={selected ? { opacity: 1 } : { opacity: 0.6 }}>
-      {React.cloneElement(icon, { color: selected ? "#14b8a6" : "#9ca3af" })}
+      {React.cloneElement(icon, { color: selected ? colors.main : colors.text })}
     </View>
     <Text style={[styles.typeText, selected && styles.typeTextSelected]}>
       {title}
@@ -150,54 +151,57 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 15,
   },
-  headerTitle: { color: "white", fontSize: 16, fontWeight: "bold" },
-  cancelText: { color: "#9ca3af", fontSize: 16 },
+  headerTitle: { color: colors.text, fontSize: 16, fontWeight: "bold" },
+  cancelText: { color: colors.mutedText, fontSize: 16 },
 
   scrollContent: { paddingBottom: 20 },
   heroTitle: {
-    color: "white",
+    color: colors.text,
     fontSize: 26,
     fontWeight: "bold",
     marginTop: 10,
   },
-  heroSub: { color: "#9ca3af", fontSize: 15, marginTop: 8, marginBottom: 30 },
+  heroSub: { color: colors.mutedText, fontSize: 15, marginTop: 8, marginBottom: 30 },
 
   inputWrapper: {
-    backgroundColor: "#1e293b",
     borderRadius: 12,
     paddingHorizontal: 15,
     height: 60,
     justifyContent: "center",
     marginBottom: 25,
+    borderWidth: 1,
+    borderColor: colors.main,
   },
-  textInput: { color: "white", fontSize: 16 },
+  textInput: { color: colors.text, fontSize: 16 },
 
   label: {
-    color: "white",
+    color: colors.mutedText,
     fontSize: 12,
     fontWeight: "bold",
-    marginBottom: 10 ,
+    marginBottom: 10,
     letterSpacing: 1,
   },
 
   categorySelector: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     borderRadius: 15,
     padding: 15,
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   categoryIconBox: {
     width: 45,
     height: 45,
-    backgroundColor: "rgba(59, 130, 246, 0.15)",
+    backgroundColor: "rgba(254, 212, 76, 0.2)",
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
   },
-  categoryPlaceholder: { color: "white", fontSize: 16, fontWeight: "600" },
-  categorySub: { color: "#64748b", fontSize: 12, marginTop: 2 },
+  categoryPlaceholder: { color: colors.text, fontSize: 16, fontWeight: "600" },
+  categorySub: { color: colors.mutedText, fontSize: 12, marginTop: 2 },
 
   grid: {
     flexDirection: "row",
@@ -207,44 +211,46 @@ const styles = StyleSheet.create({
   },
   typeCard: {
     width: "48%",
-    backgroundColor: "#1e293b",
     borderRadius: 15,
     paddingVertical: 25,
     alignItems: "center",
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: "transparent",
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
   },
   typeCardSelected: {
-    borderColor: "#14b8a6",
-    backgroundColor: "rgba(20, 184, 166, 0.05)",
+    backgroundColor: "rgba(254, 212, 76, 0.2)",
+    borderColor: colors.main,
   },
   checkIcon: { position: "absolute", top: 10, right: 10 },
   typeText: {
-    color: "#9ca3af",
+    color: colors.text,
     fontSize: 14,
     marginTop: 10,
     fontWeight: "500",
   },
-  typeTextSelected: { color: "#14b8a6" },
+  typeTextSelected: { color: colors.text },
 
   descContainer: {
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     borderRadius: 15,
     padding: 15,
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   descLabel: {
-    color: "white",
+    color: colors.text,
     fontSize: 14,
     fontWeight: "600",
     marginBottom: 10,
   },
   textArea: {
-    backgroundColor: "#0f172a",
+    backgroundColor: colors.surface,
     borderRadius: 10,
     padding: 12,
-    color: "white",
+    color: colors.text,
     fontSize: 16,
     textAlignVertical: "top",
     minHeight: 100,

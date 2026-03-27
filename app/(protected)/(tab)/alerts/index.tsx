@@ -1,4 +1,5 @@
 import { BG } from "@/components/BG";
+import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import {
   Calendar,
@@ -64,7 +65,7 @@ export default function RemindersScreen() {
             subtitle="Policy #9822-AC"
             time="Today, 5:00 PM"
             tag="YEARLY"
-            icon={<Car size={20} color="#14b8a6" />}
+            icon={<Car size={20} color={colors.main} />}
             hasBorder
           />
           <ReminderCard
@@ -72,7 +73,7 @@ export default function RemindersScreen() {
             subtitle="Min due: $145.00"
             time="Today, 8:00 PM"
             tag="MONTHLY"
-            icon={<CreditCard size={20} color="#14b8a6" />}
+            icon={<CreditCard size={20} color={colors.main} />}
           />
 
           {/* Tomorrow Section */}
@@ -82,14 +83,14 @@ export default function RemindersScreen() {
             subtitle="HVAC System"
             time="Tomorrow, 10:00 AM"
             tag="ONE-TIME"
-            icon={<Home size={20} color="#14b8a6" />}
+            icon={<Home size={20} color={colors.main} />}
           />
           <ReminderCard
             title="Passport Expiry"
             subtitle="Document #U88291"
             time="Nov 24, 2:00 PM"
             tag="DECADE"
-            icon={<FileText size={20} color="#14b8a6" />}
+            icon={<FileText size={20} color={colors.main} />}
           />
         </ScrollView>
 
@@ -98,7 +99,7 @@ export default function RemindersScreen() {
           style={styles.fab}
           onPress={() => router.push("/(protected)/add-reminder")}
         >
-          <Plus color="white" size={30} strokeWidth={3} />
+          <Plus color={colors.text} size={30} strokeWidth={3} />
         </TouchableOpacity>
       </SafeAreaView>
     </BG>
@@ -115,13 +116,13 @@ const ReminderCard = ({ title, subtitle, time, tag, icon, hasBorder }: any) => (
         <Text style={styles.cardSubtitle}>{subtitle}</Text>
       </View>
       <View style={styles.cardActions}>
-        <Pencil size={18} color="#94a3b8" style={{ marginRight: 10 }} />
-        <Clock size={18} color="#94a3b8" />
+        <Pencil size={18} color={colors.subtleText} style={{ marginRight: 10 }} />
+        <Clock size={18} color={colors.subtleText} />
       </View>
     </View>
     <View style={styles.cardFooter}>
       <View style={styles.timeRow}>
-        <Calendar size={14} color="#14b8a6" />
+        <Calendar size={14} color={colors.main} />
         <Text style={styles.timeText}>{time}</Text>
       </View>
       <View style={styles.tagBadge}>
@@ -136,13 +137,13 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 20 },
   header: { marginTop: 20, marginBottom: 30 },
   overline: {
-    color: "#14b8a6",
+    color: colors.main,
     fontSize: 12,
     fontWeight: "800",
     letterSpacing: 1,
   },
   headerTitle: {
-    color: "white",
+    color: colors.text,
     fontSize: 32,
     fontWeight: "bold",
     marginTop: 5,
@@ -151,18 +152,18 @@ const styles = StyleSheet.create({
   // Tabs
   tabContainer: { flexDirection: "row", marginBottom: 25 },
   tabItem: { marginRight: 30, paddingBottom: 8 },
-  tabText: { color: "#94a3b8", fontSize: 16, fontWeight: "600" },
-  tabTextActive: { color: "#14b8a6" },
+  tabText: { color: colors.subtleText, fontSize: 16, fontWeight: "600" },
+  tabTextActive: { color: colors.text },
   tabIndicator: {
     height: 3,
-    backgroundColor: "#14b8a6",
+    backgroundColor: colors.main,
     borderRadius: 2,
     marginTop: 4,
     width: "100%",
   },
 
   sectionLabel: {
-    color: "white",
+    color: colors.text,
     fontSize: 12,
     fontWeight: "800",
     marginBottom: 15,
@@ -171,23 +172,23 @@ const styles = StyleSheet.create({
 
   // Card Styles
   card: {
-    backgroundColor: "#161d2f",
+    backgroundColor: colors.secondary,
     borderRadius: 20,
     padding: 16,
     marginBottom: 15,
   },
-  cardBordered: { borderLeftWidth: 4, borderLeftColor: "#14b8a6" },
+  cardBordered: { borderLeftWidth: 4, borderLeftColor: colors.main },
   cardHeader: { flexDirection: "row", alignItems: "center" },
   iconCircle: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#0f172a",
+    backgroundColor: "rgba(254, 212, 76, 0.2)",
     justifyContent: "center",
     alignItems: "center",
   },
-  cardTitle: { color: "white", fontSize: 16, fontWeight: "700" },
-  cardSubtitle: { color: "#64748b", fontSize: 13, marginTop: 2 },
+  cardTitle: { color: colors.text, fontSize: 16, fontWeight: "700" },
+  cardSubtitle: { color: colors.mutedText, fontSize: 13, marginTop: 2 },
   cardActions: { flexDirection: "row", alignSelf: "flex-start" },
   cardFooter: {
     flexDirection: "row",
@@ -196,17 +197,17 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingTop: 15,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.05)",
+    borderTopColor: colors.border,
   },
   timeRow: { flexDirection: "row", alignItems: "center" },
-  timeText: { color: "white", fontSize: 14, marginLeft: 8, fontWeight: "500" },
+  timeText: { color: colors.text, fontSize: 14, marginLeft: 8, fontWeight: "500" },
   tagBadge: {
-    backgroundColor: "rgba(20, 184, 166, 0.1)",
+    backgroundColor: "rgba(254, 212, 76, 0.25)",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
   },
-  tagText: { color: "#14b8a6", fontSize: 10, fontWeight: "bold" },
+  tagText: { color: colors.text, fontSize: 10, fontWeight: "bold" },
 
   // Navigation
   fab: {
@@ -216,11 +217,11 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#14b8a6",
+    backgroundColor: colors.main,
     justifyContent: "center",
     alignItems: "center",
     elevation: 5,
-    shadowColor: "#14b8a6",
+    shadowColor: colors.main,
     shadowOpacity: 0.4,
     shadowRadius: 10,
   },

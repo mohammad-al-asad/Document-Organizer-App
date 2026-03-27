@@ -1,4 +1,5 @@
 import { BG } from "@/components/BG";
+import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import { ArrowLeft, ChevronRight } from "lucide-react-native";
 import React from "react";
@@ -18,7 +19,7 @@ export default function AccountSettings() {
         {/* Header Navigation */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
-            <ArrowLeft color="white" size={24} />
+            <ArrowLeft color={colors.text} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Account Settings</Text>
           <View style={{ width: 24 }} /> {/* Balance for back arrow */}
@@ -71,7 +72,7 @@ const SettingsItem = ({
 }) => (
   <TouchableOpacity style={styles.itemRow} onPress={onPress}>
     <Text style={styles.itemText}>{title}</Text>
-    <ChevronRight color="#94a3b8" size={20} />
+    <ChevronRight color={colors.subtleText} size={20} />
   </TouchableOpacity>
 );
 
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   headerTitle: {
-    color: "white",
+    color: colors.text,
     fontSize: 20,
     fontWeight: "600",
   },
@@ -102,10 +103,10 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 5,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.05)", // Subtle separator
+    borderBottomColor: colors.border,
   },
   itemText: {
-    color: "white",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "400",
   },

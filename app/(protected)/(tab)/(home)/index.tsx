@@ -1,4 +1,5 @@
 import { BG } from "@/components/BG";
+import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import {
   AlertTriangle,
@@ -50,7 +51,7 @@ export default function Dashboard() {
                 router.push("/(protected)/(tab)/(home)/notification")
               }
             >
-              <Bell color="white" size={24} />
+              <Bell color={colors.text} size={24} />
               <View style={styles.badge} />
             </TouchableOpacity>
           </View>
@@ -60,10 +61,10 @@ export default function Dashboard() {
             <View>
               <Text style={styles.cardLabel}>Total Assets</Text>
               <Text style={styles.assetAmount}>$124,500</Text>
-              <Text style={styles.growthText}>↗ +12% this month</Text>
+              <Text style={styles.growthText}>+12% this month</Text>
             </View>
             <View style={styles.walletIconContainer}>
-              <Wallet color="#14b8a6" size={24} />
+              <Wallet color={colors.main} size={24} />
             </View>
           </View>
 
@@ -105,7 +106,7 @@ export default function Dashboard() {
           </View>
 
           <CategoryItem
-            icon={<Home color="#14b8a6" />}
+            icon={<Home color={colors.main} />}
             title="Real Estate"
             sub="2 Properties, 12 Docs"
           />
@@ -134,15 +135,15 @@ export default function Dashboard() {
           </View>
 
           <FileItem
-            icon={<Home color="#14b8a6" size={18} />}
+            icon={<Home color={colors.main} size={18} />}
             name="Property Tax Receipt"
-            info="PDF • 2.4 MB"
+            info="PDF - 2.4 MB"
             time="Just now"
           />
           <FileItem
             icon={<Car color="#f97316" size={18} />}
             name="Vehicle Registration"
-            info="IMG • 4.1 MB"
+            info="IMG - 4.1 MB"
             time="2h ago"
           />
 
@@ -161,14 +162,8 @@ export default function Dashboard() {
           />
           <ActivityItem
             icon={
-              <View
-                style={{
-                  backgroundColor: "#eab308",
-                  padding: 4,
-                  borderRadius: 4,
-                }}
-              >
-                <FileText color="white" size={14} />
+              <View>
+                <FileText color={colors.text} size={18} />
               </View>
             }
             title="Warranty: Refrigerator"
@@ -188,7 +183,7 @@ const CategoryItem = ({ icon, title, sub }: any) => (
       <Text style={styles.categoryTitle}>{title}</Text>
       <Text style={styles.categorySub}>{sub}</Text>
     </View>
-    <ChevronRight color="#4b5563" size={20} />
+    <ChevronRight color={colors.mutedText} size={20} />
   </TouchableOpacity>
 );
 
@@ -207,11 +202,11 @@ const styles = StyleSheet.create({
     height: 45,
     borderRadius: 22.5,
     borderWidth: 2,
-    borderColor: "#14b8a6",
+    borderColor: colors.main,
   },
   greeting: { marginLeft: 12 },
-  subText: { color: "#9ca3af", fontSize: 14 },
-  titleText: { color: "white", fontSize: 20, fontWeight: "bold" },
+  subText: { color: colors.mutedText, fontSize: 14 },
+  titleText: { color: colors.text, fontSize: 20, fontWeight: "bold" },
   notificationBtn: { padding: 8 },
   badge: {
     position: "absolute",
@@ -219,32 +214,32 @@ const styles = StyleSheet.create({
     right: 8,
     width: 10,
     height: 10,
-    backgroundColor: "#ef4444",
+    backgroundColor: colors.danger,
     borderRadius: 5,
     borderWidth: 2,
-    borderColor: "#0f3443",
+    borderColor: colors.background,
   },
 
   assetCard: {
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     borderRadius: 20,
     padding: 25,
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 20,
   },
-  cardLabel: { color: "#9ca3af", fontSize: 14 },
+  cardLabel: { color: colors.mutedText, fontSize: 14 },
   assetAmount: {
-    color: "white",
+    color: colors.text,
     fontSize: 32,
     fontWeight: "bold",
     marginVertical: 8,
   },
-  growthText: { color: "#14b8a6", fontSize: 14 },
+  growthText: { color: colors.main, fontSize: 14 },
   walletIconContainer: {
     width: 45,
     height: 45,
-    backgroundColor: "rgba(20, 184, 166, 0.1)",
+    backgroundColor: "#b99e5423",
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
@@ -253,7 +248,7 @@ const styles = StyleSheet.create({
   statsRow: { flexDirection: "row", marginBottom: 30 },
   statBox: {
     flex: 1,
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     borderRadius: 20,
     padding: 20,
   },
@@ -265,8 +260,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 15,
   },
-  statNumber: { color: "white", fontSize: 24, fontWeight: "bold" },
-  statLabel: { color: "#9ca3af", fontSize: 12, marginTop: 4 },
+  statNumber: { color: colors.text, fontSize: 24, fontWeight: "bold" },
+  statLabel: { color: colors.mutedText, fontSize: 12, marginTop: 4 },
 
   sectionHeader: {
     flexDirection: "row",
@@ -274,11 +269,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 15,
   },
-  sectionTitle: { color: "white", fontSize: 18, fontWeight: "bold" },
-  viewAll: { color: "#14b8a6" },
+  sectionTitle: { color: colors.text, fontSize: 18, fontWeight: "bold" },
+  viewAll: { color: colors.btnText },
 
   categoryItem: {
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     flexDirection: "row",
     alignItems: "center",
     padding: 15,
@@ -288,11 +283,11 @@ const styles = StyleSheet.create({
   categoryIcon: {
     width: 45,
     height: 45,
-    backgroundColor: "#111827",
+    backgroundColor: "rgba(254, 212, 76, 0.2)",
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
   },
-  categoryTitle: { color: "white", fontSize: 16, fontWeight: "600" },
-  categorySub: { color: "#6b7280", fontSize: 13 },
+  categoryTitle: { color: colors.text, fontSize: 16, fontWeight: "600" },
+  categorySub: { color: colors.mutedText, fontSize: 13 },
 });

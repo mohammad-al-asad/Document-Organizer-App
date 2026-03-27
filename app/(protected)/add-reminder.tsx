@@ -1,5 +1,5 @@
 import { BG } from "@/components/BG";
-import { CustomButton } from "@/components/CustomButton"; // Assuming your structure has this
+import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import {
   ArrowLeft,
@@ -32,7 +32,7 @@ export default function AddReminder() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
-            <ArrowLeft color="white" size={24} />
+            <ArrowLeft color={colors.text} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Add Reminder</Text>
           <TouchableOpacity onPress={() => router.back()}>
@@ -47,9 +47,9 @@ export default function AddReminder() {
           {/* Linked Record Dropdown */}
           <Text style={styles.label}>LINKED RECORD</Text>
           <TouchableOpacity style={styles.dropdown}>
-            <Car color="#14b8a6" size={20} />
+            <Car color={colors.main} size={20} />
             <Text style={styles.dropdownText}>Car Insurance Renewal</Text>
-            <ChevronDown color="#64748b" size={20} />
+            <ChevronDown color={colors.mutedText} size={20} />
           </TouchableOpacity>
 
           {/* Reminder Title */}
@@ -57,7 +57,7 @@ export default function AddReminder() {
           <View style={styles.inputWrapper}>
             <TextInput
               placeholder="Renew Policy"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.subtleText}
               style={styles.textInput}
             />
           </View>
@@ -67,14 +67,14 @@ export default function AddReminder() {
             <View style={{ flex: 1, marginRight: 10 }}>
               <Text style={styles.label}>DATE</Text>
               <TouchableOpacity style={styles.dateTimeField}>
-                <Calendar color="#94a3b8" size={18} />
+                <Calendar color={colors.subtleText} size={18} />
                 <Text style={styles.dateTimeText}>Oct 24, 2023</Text>
               </TouchableOpacity>
             </View>
             <View style={{ flex: 1, marginLeft: 10 }}>
               <Text style={styles.label}>TIME</Text>
               <TouchableOpacity style={styles.dateTimeField}>
-                <Clock color="#94a3b8" size={18} />
+                <Clock color={colors.subtleText} size={18} />
                 <Text style={styles.dateTimeText}>09:00 AM</Text>
               </TouchableOpacity>
             </View>
@@ -112,7 +112,7 @@ export default function AddReminder() {
             onPress={() => setNotifType("Push")}
           >
             <View style={styles.notifIconBox}>
-              <Bell color="#14b8a6" size={20} />
+              <Bell color={colors.main} size={20} />
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <Text style={styles.notifTitle}>Push Notification</Text>
@@ -128,7 +128,7 @@ export default function AddReminder() {
             onPress={() => setNotifType("Email")}
           >
             <View style={styles.notifIconBox}>
-              <Mail color="#94a3b8" size={20} />
+              <Mail color={colors.subtleText} size={20} />
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <Text style={styles.notifTitle}>Email Reminder</Text>
@@ -142,7 +142,7 @@ export default function AddReminder() {
 
         {/* Save Button */}
         <TouchableOpacity style={styles.saveBtn}>
-          <CheckCircle2 color="#1e293b" size={24} />
+          <CheckCircle2 color={colors.text} size={24} />
           <Text style={styles.saveBtnText}>Save Record</Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -158,12 +158,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 15,
   },
-  headerTitle: { color: "white", fontSize: 18, fontWeight: "bold" },
-  cancelText: { color: "#9ca3af", fontSize: 16 },
+  headerTitle: { color: colors.text, fontSize: 18, fontWeight: "bold" },
+  cancelText: { color: colors.mutedText, fontSize: 16 },
 
   scrollContent: { paddingBottom: 40 },
   label: {
-    color: "#94a3b8",
+    color: colors.mutedText,
     fontSize: 12,
     fontWeight: "800",
     marginBottom: 10,
@@ -174,39 +174,45 @@ const styles = StyleSheet.create({
   dropdown: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     borderRadius: 12,
     padding: 15,
     borderWidth: 1,
-    borderColor: "#334155",
+    borderColor: colors.border,
   },
-  dropdownText: { color: "white", flex: 1, marginLeft: 12, fontSize: 15 },
+  dropdownText: { color: colors.text, flex: 1, marginLeft: 12, fontSize: 15 },
 
   inputWrapper: {
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     borderRadius: 12,
     paddingHorizontal: 15,
     height: 55,
     justifyContent: "center",
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  textInput: { color: "white", fontSize: 16 },
+  textInput: { color: colors.text, fontSize: 16 },
 
   row: { flexDirection: "row", justifyContent: "space-between" },
   dateTimeField: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     borderRadius: 12,
     height: 55,
     paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  dateTimeText: { color: "white", marginLeft: 10, fontSize: 15 },
+  dateTimeText: { color: colors.text, marginLeft: 10, fontSize: 15 },
 
   segmentedControl: {
     flexDirection: "row",
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     borderRadius: 12,
     padding: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   segmentItem: {
     flex: 1,
@@ -214,46 +220,49 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 10,
   },
-  segmentActive: { backgroundColor: "#14b8a6" },
-  segmentText: { color: "#94a3b8", fontWeight: "600" },
-  segmentTextActive: { color: "#0f172a" },
+  segmentActive: { backgroundColor: colors.main },
+  segmentText: { color: colors.mutedText, fontWeight: "600" },
+  segmentTextActive: { color: colors.text },
 
   notifCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     borderRadius: 15,
     padding: 15,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "transparent",
+    borderColor: colors.border,
   },
-  notifCardActive: { borderColor: "#14b8a6", backgroundColor: "rgba(20, 184, 166, 0.05)" },
+  notifCardActive: {
+    borderColor: colors.main,
+    backgroundColor: "rgba(254, 212, 76, 0.25)",
+  },
   notifIconBox: {
     width: 44,
     height: 44,
-    backgroundColor: "#0f172a",
+    backgroundColor: "rgba(254, 212, 76, 0.2)",
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
   },
-  notifTitle: { color: "white", fontSize: 15, fontWeight: "600" },
-  notifSub: { color: "#64748b", fontSize: 12, marginTop: 2 },
+  notifTitle: { color: colors.text, fontSize: 15, fontWeight: "600" },
+  notifSub: { color: colors.mutedText, fontSize: 12, marginTop: 2 },
 
   radio: {
     width: 22,
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: "#475569",
+    borderColor: colors.subtleText,
     justifyContent: "center",
     alignItems: "center",
   },
-  radioActive: { borderColor: "#14b8a6" },
-  radioInner: { width: 12, height: 12, borderRadius: 6, backgroundColor: "#14b8a6" },
+  radioActive: { borderColor: colors.main },
+  radioInner: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.main },
 
   saveBtn: {
-    backgroundColor: "#f1f5f9",
+    backgroundColor: colors.main,
     marginBottom: 20,
     height: 60,
     borderRadius: 30,
@@ -262,7 +271,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   saveBtnText: {
-    color: "#1e293b",
+    color: colors.text,
     fontSize: 18,
     fontWeight: "bold",
     marginLeft: 10,

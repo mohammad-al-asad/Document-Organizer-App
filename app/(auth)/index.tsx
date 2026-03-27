@@ -3,7 +3,7 @@ import { CustomButton } from "@/components/CustomButton";
 import CustomInput from "@/components/CustomInput";
 import { colors } from "@/config/colors";
 import { router } from "expo-router";
-import { Lock, Mail, User } from "lucide-react-native";
+import { Lock, Mail, ScanFace, User } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -68,37 +68,45 @@ export default function AuthScreen() {
             {isSignup && (
               <CustomInput
                 label="Full Name"
-                icon={<User size={20} color="#999" />}
+                icon={<User size={20} color={colors.subtleText} />}
                 placeholder="Enter your name"
               />
             )}
 
             <CustomInput
               label="Email / Phone"
-              icon={<Mail size={20} color="#999" />}
+              icon={<Mail size={20} color={colors.subtleText} />}
               placeholder="Enter email or phone number"
             />
 
             <CustomInput
               label="Password"
-              icon={<Lock size={20} color="#999" />}
+              icon={<Lock size={20} color={colors.subtleText} />}
               placeholder="Create a strong password"
               isPassword
             />
+            {!isSignup && (
+              <TouchableOpacity style={styles.faceButton} onPress={doAuth}>
+                <View style={styles.faceButtonContent}>
+                  <ScanFace size={25} color={colors.text} />
+                  <Text style={styles.faceButtonText}>
+                    Sign in with Face ID
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
 
             {isSignup && (
               <>
                 <CustomInput
                   label="Confirm Password"
-                  icon={<Lock size={20} color="#999" />}
+                  icon={<Lock size={20} color={colors.subtleText} />}
                   placeholder="Retype password"
                   isPassword
                 />
                 <View style={styles.switchRow}>
                   <View>
-                    <Text style={styles.switchLabel}>
-                      Enable 2-Step Verification
-                    </Text>
+                    <Text style={styles.switchLabel}>Sign in with Face ID</Text>
                     <Text style={styles.switchSub}>
                       Adds extra security to your account
                     </Text>
@@ -106,7 +114,9 @@ export default function AuthScreen() {
                   <Switch
                     value={twoStep}
                     onValueChange={setTwoStep}
-                    trackColor={{ false: "#D1D5DB", true: colors.main }}
+                    trackColor={{ false: colors.border, true: colors.main }}
+                    thumbColor={colors.surface}
+                    ios_backgroundColor={colors.border}
                   />
                 </View>
               </>
@@ -142,7 +152,7 @@ export default function AuthScreen() {
 export function HeaderLogo() {
   return (
     <Text style={styles.logoText}>
-      Vault<Text style={{ color: colors.main }}>Life</Text>
+      Life<Text style={{ color: colors.main }}>Vault</Text>
     </Text>
   );
 }
@@ -153,7 +163,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   logoText: {
-    color: "white",
+    color: colors.text,
     fontSize: scale(36),
     fontWeight: "800",
     marginHorizontal: "auto",
@@ -162,22 +172,32 @@ const styles = StyleSheet.create({
 
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: "rgba(255,255,255,0.1)",
+    backgroundColor: colors.secondary,
     borderRadius: 15,
     padding: 5,
     marginBottom: verticalScale(20),
+    elevation: 3,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   tab: { flex: 1, paddingVertical: 12, alignItems: "center", borderRadius: 12 },
   activeTab: { backgroundColor: colors.main },
-  tabText: { color: colors.main, fontWeight: "600" },
-  activeTabText: { color: "white" },
+  tabText: { color: colors.text, fontWeight: "600" },
+  activeTabText: { color: colors.text },
 
   card: {
-    backgroundColor: "#F8FAFC",
+    backgroundColor: colors.secondary,
     width: "100%",
     borderRadius: 24,
     padding: 20,
     gap: 15,
+    elevation: 3,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   switchRow: {
     flexDirection: "row",
@@ -185,14 +205,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
   },
-  switchLabel: { fontWeight: "700", color: "#1E293B" },
-  switchSub: { fontSize: 12, color: "#64748B" },
+  switchLabel: { fontWeight: "700", color: colors.text },
+  switchSub: { fontSize: 12, color: colors.mutedText },
+  faceButton: {
+    backgroundColor: colors.main,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: verticalScale(14),
+  },
+  faceButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  faceButtonText: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: "700",
+  },
 
   footerText: {
-    color: "#94A3B8",
+    color: colors.text,
     fontSize: 12,
     textAlign: "center",
-    marginTop: 15,
+    marginTop: verticalScale(30),
     width: "85%",
   },
   link: { color: colors.main, fontWeight: "bold" },

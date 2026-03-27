@@ -1,4 +1,5 @@
 import { BG } from "@/components/BG"; // Your diagonal gradient
+import { colors } from "@/config/colors";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import { Image } from "expo-image";
 import React, { useEffect, useState } from "react";
@@ -40,7 +41,7 @@ export default function SplashScreen({ onFinish }: { onFinish: () => void }) {
         {/* Logo Section */}
         <View style={styles.logoContainer}>
           <Image
-            style={{ height: 550, width: 350 }}
+            style={{ height: "90%", width: "100%" }}
             source={require("@/assets/images/splash.png")}
           />
         </View>
@@ -76,7 +77,7 @@ export default function SplashScreen({ onFinish }: { onFinish: () => void }) {
               gap: 8,
             }}
           >
-            <EvilIcons name="lock" size={20} color="#14B8A599" />
+            <EvilIcons name="lock" size={20} color={colors.mutedText} />
             <Text style={styles.encryptionText}>END-TO-END ENCRYPTED</Text>
           </View>
         </View>
@@ -95,25 +96,25 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   loaderLabel: {
-    color: "#FFFFFF66",
+    color: colors.mutedText,
     fontSize: 12,
     fontWeight: "bold",
     letterSpacing: 1,
   },
   progressBarTrack: {
     height: 6,
-    backgroundColor: "#1a2a2a",
+    backgroundColor: colors.border,
     borderRadius: 2,
     width: "100%",
     overflow: "hidden",
   },
   progressBarFill: {
     height: "100%",
-    backgroundColor: "#4fd1c5",
+    backgroundColor: colors.main,
     borderRadius: 2,
   },
   encryptionText: {
-    color: "#14B8A599",
+    color: colors.mutedText,
     fontSize: 10,
     textAlign: "center",
     fontWeight: "700",

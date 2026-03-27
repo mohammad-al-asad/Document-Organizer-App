@@ -1,5 +1,6 @@
 import { BG } from "@/components/BG";
 import { CustomButton } from "@/components/CustomButton";
+import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import { ArrowLeft, Calendar, ChevronDown, Pencil } from "lucide-react-native";
 import React from "react";
@@ -21,7 +22,7 @@ export default function EditProfile() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
-            <ArrowLeft color="white" size={24} />
+            <ArrowLeft color={colors.text} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Edit Profile</Text>
           <View style={{ width: 24 }} /> {/* Spacing balance */}
@@ -39,7 +40,7 @@ export default function EditProfile() {
                 style={styles.avatar}
               />
               <TouchableOpacity style={styles.editBadge}>
-                <Pencil color="white" size={12} strokeWidth={3} />
+                <Pencil color={colors.text} size={12} strokeWidth={3} />
               </TouchableOpacity>
             </View>
           </View>
@@ -51,7 +52,7 @@ export default function EditProfile() {
               <TextInput
                 style={styles.input}
                 placeholder="Name"
-                placeholderTextColor="#94a3b8"
+                placeholderTextColor={colors.subtleText}
                 defaultValue="Minnie"
               />
             </View>
@@ -61,7 +62,7 @@ export default function EditProfile() {
               <TextInput
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor="#94a3b8"
+                placeholderTextColor={colors.subtleText}
                 defaultValue="minnie@gmail.com"
                 keyboardType="email-address"
               />
@@ -71,7 +72,7 @@ export default function EditProfile() {
               <Text style={styles.label}>Date of Birth</Text>
               <TouchableOpacity style={styles.inputRow}>
                 <Text style={styles.inputText}>28/11/2005</Text>
-                <Calendar color="#14b8a6" size={20} />
+                <Calendar color={colors.main} size={20} />
               </TouchableOpacity>
             </View>
 
@@ -79,7 +80,7 @@ export default function EditProfile() {
               <Text style={styles.label}>Country</Text>
               <TouchableOpacity style={styles.inputRow}>
                 <Text style={styles.inputText}>Mexico</Text>
-                <ChevronDown color="#94a3b8" size={20} />
+                <ChevronDown color={colors.subtleText} size={20} />
               </TouchableOpacity>
             </View>
           </View>
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 15,
   },
-  headerTitle: { color: "white", fontSize: 18, fontWeight: "700" },
+  headerTitle: { color: colors.text, fontSize: 18, fontWeight: "700" },
   scrollContent: { paddingBottom: 40 },
 
   // Avatar
@@ -114,7 +115,7 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     borderWidth: 1.5,
-    borderColor: "rgba(255,255,255,0.3)",
+    borderColor: "rgba(51, 65, 85, 0.2)",
     padding: 4,
     position: "relative",
   },
@@ -127,21 +128,21 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     right: 0,
-    backgroundColor: "#14b8a6",
+    backgroundColor: colors.main,
     width: 28,
     height: 28,
     borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "#0b1120",
+    borderColor: colors.background,
   },
 
   // Form
   form: { gap: 20 },
   inputGroup: { gap: 10 },
   label: {
-    color: "white",
+    color: colors.text,
     fontSize: 14,
     fontWeight: "600",
     marginLeft: 5,
@@ -150,22 +151,22 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.4)",
+    borderColor: colors.border,
     paddingHorizontal: 20,
-    color: "white",
+    color: colors.text,
     fontSize: 15,
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: colors.surface,
   },
   inputRow: {
     height: 56,
     borderRadius: 28,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.4)",
+    borderColor: colors.border,
     paddingHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: colors.surface,
   },
-  inputText: { color: "white", fontSize: 15 },
+  inputText: { color: colors.text, fontSize: 15 },
 });

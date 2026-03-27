@@ -1,4 +1,5 @@
 import { BG } from "@/components/BG";
+import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import React from "react";
@@ -51,7 +52,7 @@ export default function NotificationsList() {
         {/* Header - Minimal padding to match design */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
-            <ArrowLeft color="white" size={24} />
+            <ArrowLeft color={colors.text} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Notification</Text>
           <View style={styles.headerBtn} />
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   headerBtn: { width: 40, alignItems: "center" },
-  headerTitle: { color: "white", fontSize: 18, fontWeight: "700" },
+  headerTitle: { color: colors.text, fontSize: 18, fontWeight: "700" },
   
   scrollContent: {
     paddingTop: 10,
@@ -113,13 +114,13 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 12,
   },
-  // Unread state: Vibrant Teal Gradient feel
   unreadCard: {
-    backgroundColor: "#14b8a6",
+    backgroundColor: "rgba(254, 212, 76, 0.45)",
   },
-  // Read state: Subtle dark overlay
   readCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.7)",
+    backgroundColor: colors.secondary,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
 
   messageText: {
@@ -128,20 +129,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   unreadText: {
-    color: "white",
+    color: colors.text,
     fontWeight: "500",
   },
   readText: {
-    color: "#94a3b8",
+    color: colors.text,
   },
 
   timeText: {
     fontSize: 11,
   },
   unreadTime: {
-    color: "rgba(255, 255, 255, 0.8)",
+    color: colors.mutedText,
   },
   readTime: {
-    color: "#64748b",
+    color: colors.mutedText,
   },
 });

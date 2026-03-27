@@ -72,7 +72,7 @@ export default function DocumentScanner({ onClose, onSave, openGallery }: any) {
       cropperToolbarTitle: "Adjust Document",
       cropperToolbarColor: "#0f172a",
       cropperToolbarWidgetColor: "#ffffff",
-      cropperActiveWidgetColor: "#14b8a6",
+      cropperActiveWidgetColor: colors.main,
     }).then((image) => {
       onSave(image);
     });
@@ -234,10 +234,10 @@ const styles = StyleSheet.create({
     width: width * 0.85,
     height: height * 0.55,
     borderWidth: 2,
-    borderBottomColor: "#14b8a6",
-    borderTopColor: "#14b8a6",
-    backgroundColor: "rgba(20, 184, 166, 0.1)",
-    borderColor: "rgba(20, 184, 166, 0.1)",
+    borderBottomColor: colors.main,
+    borderTopColor: colors.main,
+    backgroundColor: "rgba(254, 212, 76, 0.15)",
+    borderColor: "rgba(254, 212, 76, 0.3)",
     borderRadius: 12,
     alignItems: "center",
   },

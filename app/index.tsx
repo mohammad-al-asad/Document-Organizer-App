@@ -1,6 +1,7 @@
 import { BG } from "@/components/BG";
 import { CustomButton } from "@/components/CustomButton";
 import SplashScreen from "@/components/Splash";
+import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
@@ -31,7 +32,7 @@ const DATA = [
 export default function OnboardingScreen() {
   const [step, setStep] = useState(0);
   const [isSplash, setIsSplash] = useState(true);
-  const isLogged = true; // Replace with real auth logic
+  const isLogged = false; // Replace with real auth logic
 
   if (isSplash) {
     return (
@@ -92,19 +93,19 @@ export default function OnboardingScreen() {
 }
 
 const styles = StyleSheet.create({
-  skip: { color: "#ccc", alignSelf: "flex-end", marginTop: 20 },
+  skip: { color: colors.mutedText, alignSelf: "flex-end", marginTop: 20 },
   content: { flex: 1, justifyContent: "center", alignItems: "center" },
   imagePlaceholder: { flex: 2, justifyContent: "center", zIndex: 100 },
   textContent: { flex: 1, alignItems: "center" },
   title: {
-    color: "white",
+    color: colors.text,
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 15,
   },
   description: {
-    color: "#a0a0a0",
+    color: colors.mutedText,
     textAlign: "center",
     lineHeight: 22,
     fontSize: 14,
@@ -114,8 +115,8 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#333",
+    backgroundColor: colors.border,
     marginHorizontal: 5,
   },
-  activeDot: { backgroundColor: "white", width: 20 }, // Capsule shape for active dot
+  activeDot: { backgroundColor: colors.main, width: 20 },
 });

@@ -1,6 +1,14 @@
 export const colors = {
-  btn: "#F2F2F2",
-  btnText: "#1E3A8A",
-  main: "#25C5B3",
-  secondaryText: "#CBD5E1",
+  main: "#FED44C",
+  text: "#334155",
+  background: "#FFFEF8",
+  surface: "#FFFFFF",
+  secondary: "#FFFFFF",
+  border: "#E2E8F0",
+  mutedText: "#64748B",
+  subtleText: "#94A3B8",
+  btn: "#FFFFFF",
+  btnText: "#334155",
+  secondaryText: "#64748B",
+  danger: "#EF4444",
 };

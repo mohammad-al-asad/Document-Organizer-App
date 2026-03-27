@@ -1,3 +1,4 @@
+import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import React from "react";
@@ -30,7 +31,7 @@ const InfoContentScreen: React.FC<InfoContentScreenProps> = ({
             onPress={() => router.back()}
             style={styles.headerBtn}
           >
-            <ArrowLeft color="white" size={24} />
+            <ArrowLeft color={colors.text} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{title}</Text>
           <View style={styles.headerBtn} />
@@ -42,10 +43,8 @@ const InfoContentScreen: React.FC<InfoContentScreenProps> = ({
         >
           {data.map((item, index) => (
             <View key={index} style={styles.itemContainer}>
-              {/* Number Column - White text for dark mode */}
               <Text style={styles.numberText}>{index + 1}.</Text>
 
-              {/* Text Column - White text for dark mode */}
               <Text style={styles.contentText}>{item}</Text>
             </View>
           ))}
@@ -64,7 +63,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   headerBtn: { width: 40, alignItems: "center" },
-  headerTitle: { color: "white", fontSize: 18, fontWeight: "700" },
+  headerTitle: { color: colors.text, fontSize: 18, fontWeight: "700" },
   scrollContent: {
     paddingVertical: moderateScale(20),
     paddingTop: verticalScale(10),
@@ -76,7 +75,7 @@ const styles = StyleSheet.create({
   },
   numberText: {
     fontSize: moderateScale(14),
-    color: "white", // Changed from #000 to white
+    color: colors.text,
     fontWeight: "500",
     marginRight: moderateScale(8),
     width: moderateScale(20),
@@ -84,9 +83,9 @@ const styles = StyleSheet.create({
   contentText: {
     flex: 1,
     fontSize: moderateScale(14),
-    color: "white", // Changed from #000 to white
+    color: colors.text,
     lineHeight: verticalScale(20),
-    textAlign: "left", // Design shows standard left alignment
+    textAlign: "left",
   },
 });
 

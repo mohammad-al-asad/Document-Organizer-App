@@ -1,5 +1,6 @@
 import { BG } from "@/components/BG";
 import { CustomButton } from "@/components/CustomButton";
+import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react-native";
 import React, { useState } from "react";
@@ -30,7 +31,7 @@ export default function ChangePassword() {
             onPress={() => router.back()}
             style={styles.headerBtn}
           >
-            <ArrowLeft color="white" size={24} />
+            <ArrowLeft color={colors.text} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Change Password</Text>
           <View style={styles.headerBtn} />
@@ -48,7 +49,7 @@ export default function ChangePassword() {
                 <TextInput
                   style={styles.input}
                   placeholder="******"
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={colors.subtleText}
                   secureTextEntry={!showOldPassword}
                   value={oldPassword}
                   onChangeText={setOldPassword}
@@ -58,9 +59,9 @@ export default function ChangePassword() {
                   style={styles.eyeIcon}
                 >
                   {showOldPassword ? (
-                    <Eye color="white" size={20} />
+                    <Eye color={colors.subtleText} size={20} />
                   ) : (
-                    <EyeOff color="white" size={20} />
+                    <EyeOff color={colors.subtleText} size={20} />
                   )}
                 </TouchableOpacity>
               </View>
@@ -73,7 +74,7 @@ export default function ChangePassword() {
                 <TextInput
                   style={styles.input}
                   placeholder="******"
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={colors.subtleText}
                   secureTextEntry={!showNewPassword}
                   value={newPassword}
                   onChangeText={setNewPassword}
@@ -83,9 +84,9 @@ export default function ChangePassword() {
                   style={styles.eyeIcon}
                 >
                   {showNewPassword ? (
-                    <Eye color="white" size={20} />
+                    <Eye color={colors.subtleText} size={20} />
                   ) : (
-                    <EyeOff color="white" size={20} />
+                    <EyeOff color={colors.subtleText} size={20} />
                   )}
                 </TouchableOpacity>
               </View>
@@ -114,7 +115,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   headerBtn: { width: 40, alignItems: "center" },
-  headerTitle: { color: "white", fontSize: 18, fontWeight: "700" },
+  headerTitle: { color: colors.text, fontSize: 18, fontWeight: "700" },
 
   // ScrollContent: Main content padding handled here instead of main view
   scrollContent: {
@@ -124,7 +125,7 @@ const styles = StyleSheet.create({
   form: { gap: 25 },
   inputGroup: { gap: 10 },
   label: {
-    color: "white",
+    color: colors.text,
     fontSize: 14,
     fontWeight: "600",
     marginLeft: 5,
@@ -135,13 +136,13 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.4)",
-    backgroundColor: "rgba(255,255,255,0.05)",
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
     paddingHorizontal: 15,
   },
   input: {
     flex: 1,
-    color: "white",
+    color: colors.text,
     fontSize: 16,
   },
   eyeIcon: {
@@ -149,6 +150,6 @@ const styles = StyleSheet.create({
   },
 
   updateBtn: {
-    backgroundColor: "#14b8a6",
+    backgroundColor: colors.main,
   },
 });

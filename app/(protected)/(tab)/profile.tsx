@@ -1,4 +1,5 @@
 import { BG } from "@/components/BG";
+import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
 import React from "react";
@@ -80,7 +81,7 @@ const ProfileMenuItem = ({
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
     <Text style={styles.menuItemText}>{title}</Text>
     <View style={styles.chevronBox}>
-      <ChevronRight color="#0f172a" size={20} strokeWidth={2.5} />
+      <ChevronRight color={colors.text} size={20} strokeWidth={2.5} />
     </View>
   </TouchableOpacity>
 );
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     borderWidth: 2,
-    borderColor: "#14b8a6",
+    borderColor: colors.main,
     padding: 3,
     justifyContent: "center",
     alignItems: "center",
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
     borderRadius: 40,
   },
   userName: {
-    color: "white",
+    color: colors.text,
     fontSize: 24,
     fontWeight: "bold",
     marginLeft: 20,
@@ -123,18 +124,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     paddingVertical: 18,
     paddingHorizontal: 20,
     borderRadius: 12,
   },
   menuItemText: {
-    color: "white",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "500",
   },
   chevronBox: {
-    backgroundColor: "#14b8a6",
+    backgroundColor: colors.main,
     borderRadius: 8,
     width: 32,
     height: 32,
@@ -142,14 +143,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logoutItem: {
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     paddingVertical: 22,
     paddingHorizontal: 20,
     borderRadius: 12,
     marginTop: 8,
   },
   logoutText: {
-    color: "#ef4444",
+    color: colors.danger,
     fontSize: 16,
     fontWeight: "600",
   },

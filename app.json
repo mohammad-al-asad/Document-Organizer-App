@@ -4,23 +4,21 @@
     "slug": "vaultlife",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/VaultLife.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "docorganizer",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/VaultLife.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#FFF8DD",
+        "foregroundImage": "./assets/images/icon.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.jhirash42.vaultlife"
+      "package": "com.app.vaultlife"
     },
     "web": {
       "output": "static",
@@ -31,19 +29,23 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash.png",
-          "imageWidth": 400,
-          "resizeMode": "contain",
-          "backgroundColor": "#0a1a1a",
-          "dark": {
-            "backgroundColor": "#0a1a1a"
-          }
+          "image": "./assets/images/load.png",
+          "backgroundColor": "#FFF8DD",
+          "hideStatusBar": true,
+          "imageWidth": 200,
+          "resizeMode": "contain"
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e036e34d-df8d-4ca8-b288-148fd52f75e8"
+      }
     }
   }
 }

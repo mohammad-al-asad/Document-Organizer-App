@@ -1,6 +1,7 @@
 import { BG } from "@/components/BG";
 import { CustomButton } from "@/components/CustomButton";
 import DocumentScanner from "@/components/DocumentScanner";
+import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import {
   ArrowLeft,
@@ -43,7 +44,7 @@ export default function DocumentsAndNotes() {
         cropperToolbarTitle: "Adjust Document",
         cropperToolbarColor: "#0f172a",
         cropperToolbarWidgetColor: "#ffffff",
-        cropperActiveWidgetColor: "#14b8a6",
+        cropperActiveWidgetColor: colors.main,
       });
       onSave(result);
     } catch (error) {
@@ -72,7 +73,7 @@ export default function DocumentsAndNotes() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
-            <ArrowLeft color="white" size={24} />
+            <ArrowLeft color={colors.text} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Documents & Notes</Text>
           <TouchableOpacity>
@@ -87,7 +88,7 @@ export default function DocumentsAndNotes() {
           {/* Upload Assets Section */}
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Paperclip color="#14b8a6" size={20} style={{ marginRight: 8 }} />
+              <Paperclip color={colors.main} size={20} style={{ marginRight: 8 }} />
               <Text style={styles.cardTitle}>Upload Assets</Text>
             </View>
 
@@ -98,10 +99,10 @@ export default function DocumentsAndNotes() {
             >
               <View style={styles.iconRow}>
                 <View style={styles.roundIconBox}>
-                  <Camera color="#14b8a6" size={22} />
+                  <Camera color={colors.main} size={22} />
                 </View>
                 <View style={[styles.roundIconBox, { marginLeft: 15 }]}>
-                  <CloudUpload color="#14b8a6" size={22} />
+                  <CloudUpload color={colors.main} size={22} />
                 </View>
               </View>
               <Text style={styles.dropzoneText}>Tap to scan or upload</Text>
@@ -112,7 +113,7 @@ export default function DocumentsAndNotes() {
               style={styles.scanDocBtn}
               onPress={() => setIsScanning(true)}
             >
-              <Scan color="black" size={20} style={{ marginRight: 10 }} />
+              <Scan color={colors.text} size={20} style={{ marginRight: 10 }} />
               <Text style={styles.scanDocText}>Scan Doc</Text>
             </TouchableOpacity>
 
@@ -120,7 +121,7 @@ export default function DocumentsAndNotes() {
               style={styles.uploadFileBtn}
               onPress={() => openGallery()}
             >
-              <FileUp color="white" size={20} style={{ marginRight: 10 }} />
+              <FileUp color={colors.text} size={20} style={{ marginRight: 10 }} />
               <Text style={styles.uploadFileText}>Upload File</Text>
             </TouchableOpacity>
           </View>
@@ -131,7 +132,7 @@ export default function DocumentsAndNotes() {
             <View style={styles.textAreaContainer}>
               <TextInput
                 placeholder="Add details about warranty, serial numbers, or condition..."
-                placeholderTextColor="#64748b"
+                placeholderTextColor={colors.mutedText}
                 multiline
                 numberOfLines={6}
                 style={styles.textArea}
@@ -146,7 +147,7 @@ export default function DocumentsAndNotes() {
             </Text>
             <View style={styles.smallTextAreaContainer}>
               <TextInput
-                placeholderTextColor="#64748b"
+                placeholderTextColor={colors.mutedText}
                 style={styles.smallTextArea}
                 multiline
               />
@@ -170,7 +171,7 @@ export default function DocumentsAndNotes() {
         >
           {/* Note: Your CustomButton might need adjustment to accept children for the icon */}
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <CheckCircle color="#1e293b" size={20} style={{ marginRight: 8 }} />
+            <CheckCircle color={colors.text} size={20} style={{ marginRight: 8 }} />
             <Text style={styles.saveBtnText}>Save Record</Text>
           </View>
         </CustomButton>
@@ -187,28 +188,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 15,
   },
-  headerTitle: { color: "white", fontSize: 16, fontWeight: "bold" },
-  cancelText: { color: "#9ca3af", fontSize: 16 },
+  headerTitle: { color: colors.text, fontSize: 16, fontWeight: "bold" },
+  cancelText: { color: colors.mutedText, fontSize: 16 },
 
   scrollContent: { paddingBottom: 40, paddingTop: 10 },
 
   card: {
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     borderRadius: 20,
     padding: 20,
     marginBottom: 15,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   cardHeader: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
-  cardTitle: { color: "white", fontSize: 16, fontWeight: "bold" },
+  cardTitle: { color: colors.text, fontSize: 16, fontWeight: "bold" },
 
   dropzone: {
     borderWidth: 2,
-    borderColor: "#14b8a6",
+    borderColor: colors.main,
     borderStyle: "dashed",
     borderRadius: 15,
     paddingVertical: 35,
     alignItems: "center",
-    backgroundColor: "#0f172a",
+    backgroundColor: "rgba(254, 212, 76, 0.15)",
     marginBottom: 20,
   },
   iconRow: { flexDirection: "row", marginBottom: 15 },
@@ -216,16 +219,16 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "rgba(20, 184, 166, 0.08)",
+    backgroundColor: "rgba(254, 212, 76, 0.15)",
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "rgba(20, 184, 166, 0.2)",
+    borderColor: "rgba(254, 212, 76, 0.4)",
   },
-  dropzoneText: { color: "#9ca3af", fontSize: 14 },
+  dropzoneText: { color: colors.mutedText, fontSize: 14 },
 
   scanDocBtn: {
-    backgroundColor: "#14b8a6",
+    backgroundColor: colors.main,
     flexDirection: "row",
     height: 55,
     borderRadius: 12,
@@ -233,43 +236,47 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 12,
   },
-  scanDocText: { color: "black", fontSize: 16, fontWeight: "bold" },
+  scanDocText: { color: colors.text, fontSize: 16, fontWeight: "bold" },
 
   uploadFileBtn: {
-    backgroundColor: "#111827",
+    backgroundColor: colors.surface,
     flexDirection: "row",
     height: 55,
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#334155",
+    borderColor: colors.border,
   },
-  uploadFileText: { color: "white", fontSize: 16, fontWeight: "600" },
+  uploadFileText: { color: colors.text, fontSize: 16, fontWeight: "600" },
 
   sectionLabel: {
-    color: "white",
+    color: colors.text,
     fontSize: 15,
     fontWeight: "bold",
     marginBottom: 15,
   },
   textAreaContainer: {
-    backgroundColor: "#0f172a",
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 15,
     minHeight: 120,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  textArea: { color: "white", fontSize: 15, textAlignVertical: "top" },
+  textArea: { color: colors.text, fontSize: 15, textAlignVertical: "top" },
 
-  optionalLabel: { color: "#9ca3af", fontSize: 13, marginBottom: 12 },
+  optionalLabel: { color: colors.mutedText, fontSize: 13, marginBottom: 12 },
   smallTextAreaContainer: {
-    backgroundColor: "#0f172a",
+    backgroundColor: colors.surface,
     borderRadius: 12,
     height: 80,
     padding: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  smallTextArea: { color: "white", fontSize: 15 },
+  smallTextArea: { color: colors.text, fontSize: 15 },
 
   saveBtn: { marginTop: 10 },
-  saveBtnText: { color: "#1e293b", fontSize: 18, fontWeight: "bold" },
+  saveBtnText: { color: colors.text, fontSize: 18, fontWeight: "bold" },
 });

@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logoText: {
-    color: "white",
+    color: colors.text,
     fontSize: 36,
     fontWeight: "800",
     marginVertical: 40,
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(28),
     fontWeight: 500,
     marginBottom: verticalScale(12),
-    color: "#fff",
+    color: colors.text,
     textAlign: "center",
   },
 
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     width: scale(50),
     height: verticalScale(55),
     borderWidth: 2,
-    borderColor: "#CBD5E1",
+    borderColor: colors.border,
     borderRadius: 10,
   },
   footer: {

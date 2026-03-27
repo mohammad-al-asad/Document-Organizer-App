@@ -27,8 +27,7 @@ export default function ForgotPasswordScreen() {
           <View style={styles.form}>
             <CustomInput
               label="Email / Phone"
-              labelColor="#fff"
-              icon={<Mail size={20} color="#999" />}
+              icon={<Mail size={20} color={colors.subtleText} />}
               placeholder="Email"
             />
 
@@ -70,7 +69,7 @@ export function HeaderLogo() {
 
 const styles = StyleSheet.create({
   logoText: {
-    color: "white",
+    color: colors.text,
     fontSize: scale(36),
     fontWeight: "800",
     marginHorizontal: "auto",
@@ -87,7 +86,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#fff",
+    color: colors.text,
     marginBottom: 8,
   },
   subtitle: {
@@ -102,7 +101,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#333",
+    color: colors.text,
     marginBottom: 8,
     marginLeft: 4,
   },

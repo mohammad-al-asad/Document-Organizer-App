@@ -23,7 +23,7 @@ export default function HelpSupport() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
-            <ArrowLeft color="white" size={24} />
+            <ArrowLeft color={colors.text} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Help & support</Text>
           <View style={{ width: 24 }} />
@@ -48,7 +48,7 @@ export default function HelpSupport() {
             <TextInput
               style={styles.input}
               placeholder="Enter the title of your issue"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.subtleText}
             />
           </View>
 
@@ -57,7 +57,7 @@ export default function HelpSupport() {
             <TextInput
               style={[styles.input, styles.textArea]}
               placeholder="Write here..."
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.subtleText}
               multiline={true}
               numberOfLines={6}
               textAlignVertical="top"
@@ -67,10 +67,6 @@ export default function HelpSupport() {
 
         {/* Action Buttons */}
         <CustomButton title="SEND" style={{ marginTop: 40 }} />
-        <CustomButton
-          title="LIVE CHAT"
-          style={{ backgroundColor: colors.main }}
-        />
       </SafeAreaView>
     </BG>
   );
@@ -84,7 +80,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 15,
   },
-  headerTitle: { color: "white", fontSize: 18, fontWeight: "700" },
+  headerTitle: { color: colors.text, fontSize: 18, fontWeight: "700" },
   scrollContent: { paddingBottom: 40 },
 
   // Illustration
@@ -99,7 +95,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   heroText: {
-    color: "white",
+    color: colors.text,
     fontSize: 18,
     fontWeight: "500",
     textAlign: "center",
@@ -109,7 +105,7 @@ const styles = StyleSheet.create({
   form: { gap: 20 },
   inputGroup: { gap: 10 },
   label: {
-    color: "white",
+    color: colors.text,
     fontSize: 14,
     fontWeight: "600",
     marginLeft: 5,
@@ -117,12 +113,12 @@ const styles = StyleSheet.create({
   input: {
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.4)",
+    borderColor: colors.border,
     paddingHorizontal: 15,
     paddingVertical: 15,
-    color: "white",
+    color: colors.text,
     fontSize: 14,
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: colors.surface,
   },
   textArea: {
     height: 150,

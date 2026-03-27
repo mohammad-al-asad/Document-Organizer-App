@@ -1,4 +1,5 @@
 import { BG } from "@/components/BG";
+import { colors } from "@/config/colors";
 import {
   Car,
   ChevronRight,
@@ -32,10 +33,10 @@ export default function MyRecords() {
 
           {/* Search Bar */}
           <View style={styles.searchContainer}>
-            <Search color="#64748b" size={20} />
+            <Search color={colors.mutedText} size={20} />
             <TextInput
               placeholder="Search documents..."
-              placeholderTextColor="#64748b"
+              placeholderTextColor={colors.mutedText}
               style={styles.searchInput}
             />
           </View>
@@ -72,7 +73,7 @@ export default function MyRecords() {
           {/* Highlighted Records (Cards) */}
           <RecordCard
             title="Car Registration"
-            sub="Vehicle • Tesla Model 3"
+            sub="Vehicle - Tesla Model 3"
             date="Oct 24, 2024"
             status="ACTIVE"
             type="vehicle"
@@ -80,7 +81,7 @@ export default function MyRecords() {
 
           <RecordCard
             title="Home Insurance"
-            sub="Property • 124 Main St"
+            sub="Property - 124 Main St"
             date="in 5 days"
             status="EXPIRING"
             type="home"
@@ -89,7 +90,7 @@ export default function MyRecords() {
 
           <RecordCard
             title="Health Insurance"
-            sub="Personal • Policy #8821"
+            sub="Personal - Policy #8821"
             date="in 5 days"
             status="EXPIRING"
             type="health"
@@ -105,15 +106,15 @@ export default function MyRecords() {
           </View>
 
           <FileItem
-            icon={<Home color="#14b8a6" size={18} />}
+            icon={<Home color={colors.main} size={18} />}
             name="Property Tax Receipt"
-            info="PDF • 2.4 MB"
+            info="PDF - 2.4 MB"
             time="Just now"
           />
           <FileItem
             icon={<Car color="#f97316" size={18} />}
             name="Vehicle Registration"
-            info="IMG • 4.1 MB"
+            info="IMG - 4.1 MB"
             time="2h ago"
           />
 
@@ -133,13 +134,8 @@ export default function MyRecords() {
           <ActivityItem
             icon={
               <View
-                style={{
-                  backgroundColor: "#eab308",
-                  padding: 4,
-                  borderRadius: 4,
-                }}
               >
-                <FileText color="white" size={14} />
+                <FileText color={colors.text} size={18} />
               </View>
             }
             title="Warranty: Refrigerator"
@@ -163,7 +159,7 @@ const RecordCard = ({ title, sub, date, status, type, showButton }: any) => {
           {/* In the real app, use an Image here. Using Icon for placeholder */}
           <View style={styles.imageOverlayIcon}>
             {type === "vehicle" && <Car color="#f97316" size={20} />}
-            {type === "home" && <Home color="#14b8a6" size={20} />}
+            {type === "home" && <Home color={colors.main} size={20} />}
             {type === "health" && <ShieldPlus color="#a855f7" size={20} />}
           </View>
         </View>
@@ -179,7 +175,7 @@ const RecordCard = ({ title, sub, date, status, type, showButton }: any) => {
               <Text
                 style={[
                   styles.statusText,
-                  isExpiring ? { color: "#f97316" } : { color: "#14b8a6" },
+                  isExpiring ? { color: "#f97316" } : { color: colors.main },
                 ]}
               >
                 {status}
@@ -203,7 +199,7 @@ const RecordCard = ({ title, sub, date, status, type, showButton }: any) => {
               </TouchableOpacity>
             ) : (
               <TouchableOpacity style={styles.circleArrow}>
-                <ChevronRight color="#4b5563" size={18} />
+                <ChevronRight color={colors.mutedText} size={18} />
               </TouchableOpacity>
             )}
           </View>
@@ -231,7 +227,7 @@ export const ActivityItem = ({ icon, title, sub }: any) => (
       <Text style={styles.activityTitle}>{title}</Text>
       <Text style={styles.activitySub}>{sub}</Text>
     </View>
-    <ChevronRight color="#4b5563" size={18} />
+    <ChevronRight color={colors.mutedText} size={18} />
   </TouchableOpacity>
 );
 
@@ -239,7 +235,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { paddingBottom: 50 },
   screenTitle: {
-    color: "white",
+    color: colors.text,
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
@@ -248,13 +244,15 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.surface,
+    borderColor: colors.main,
+    borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 15,
     height: 50,
     marginBottom: 20,
   },
-  searchInput: { flex: 1, marginLeft: 10, color: "white", fontSize: 16 },
+  searchInput: { flex: 1, marginLeft: 10, color: colors.text, fontSize: 16 },
 
   filterScroll: { marginBottom: 25 },
   filterChip: {
@@ -262,16 +260,16 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#334155",
+    borderColor: colors.main,
     marginRight: 10,
-    backgroundColor: "#1e293b",
+    backgroundColor: "transparent",
   },
-  filterChipActive: { borderColor: "#14b8a6", backgroundColor: "transparent" },
-  filterText: { color: "#9ca3af", fontWeight: "500" },
-  filterTextActive: { color: "#14b8a6" },
+  filterChipActive: { backgroundColor: colors.secondary },
+  filterText: { color: colors.text, fontWeight: "500" },
+  filterTextActive: { color: colors.text },
 
   recordCard: {
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     borderRadius: 20,
     padding: 15,
     marginBottom: 15,
@@ -280,26 +278,32 @@ const styles = StyleSheet.create({
   cardImagePlaceholder: {
     width: 80,
     height: 80,
-    backgroundColor: "#334155",
+    backgroundColor: "rgba(254, 212, 76, 0.2)",
     borderRadius: 12,
     justifyContent: "flex-end",
     alignItems: "center",
     paddingBottom: 10,
+    borderColor: colors.main,
+    borderWidth: 1,
   },
-  imageOverlayIcon: { backgroundColor: "#0f172a", padding: 6, borderRadius: 8 },
+  imageOverlayIcon: {
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    padding: 6,
+    borderRadius: 8,
+  },
   rowBetween: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  recordTitle: { color: "white", fontSize: 16, fontWeight: "bold" },
-  recordSub: { color: "#9ca3af", fontSize: 12, marginTop: 2 },
+  recordTitle: { color: colors.text, fontSize: 16, fontWeight: "bold" },
+  recordSub: { color: colors.mutedText, fontSize: 12, marginTop: 2 },
   statusBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
   statusActive: { backgroundColor: "rgba(20, 184, 166, 0.1)" },
   statusExpiring: { backgroundColor: "rgba(249, 115, 22, 0.1)" },
   statusText: { fontSize: 10, fontWeight: "800" },
-  dateLabel: { color: "#64748b", fontSize: 10, fontWeight: "600" },
-  dateValue: { color: "white", fontSize: 14, fontWeight: "bold", marginTop: 2 },
+  dateLabel: { color: colors.mutedText, fontSize: 10, fontWeight: "600" },
+  dateValue: { color: colors.text, fontSize: 14, fontWeight: "bold", marginTop: 2 },
   renewBtn: {
     backgroundColor: "rgba(249, 115, 22, 0.1)",
     paddingHorizontal: 12,
@@ -312,7 +316,7 @@ const styles = StyleSheet.create({
   circleArrow: {
     width: 32,
     height: 32,
-    backgroundColor: "#334155",
+    backgroundColor: "#EEF2F7",
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
@@ -325,11 +329,11 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     marginTop: 10,
   },
-  sectionTitle: { color: "white", fontSize: 18, fontWeight: "bold" },
-  viewAll: { color: "#14b8a6", fontSize: 14 },
+  sectionTitle: { color: colors.text, fontSize: 18, fontWeight: "bold" },
+  viewAll: { color: colors.btnText, fontSize: 14 },
 
   fileItem: {
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     flexDirection: "row",
     alignItems: "center",
     padding: 15,
@@ -339,17 +343,17 @@ const styles = StyleSheet.create({
   fileIconBox: {
     width: 40,
     height: 40,
-    backgroundColor: "#0f172a",
+    backgroundColor: "rgba(254, 212, 76, 0.2)",
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
   },
-  fileName: { color: "white", fontSize: 15, fontWeight: "600" },
-  fileInfo: { color: "#64748b", fontSize: 12, marginTop: 2 },
-  fileTime: { color: "#64748b", fontSize: 12 },
+  fileName: { color: colors.text, fontSize: 15, fontWeight: "600" },
+  fileInfo: { color: colors.mutedText, fontSize: 12, marginTop: 2 },
+  fileTime: { color: colors.mutedText, fontSize: 12 },
 
   activityItem: {
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     flexDirection: "row",
     alignItems: "center",
     padding: 15,
@@ -359,11 +363,11 @@ const styles = StyleSheet.create({
   activityIconBox: {
     width: 40,
     height: 40,
-    backgroundColor: "#0f172a",
+    backgroundColor: "rgba(254, 212, 76, 0.2)",
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
   },
-  activityTitle: { color: "white", fontSize: 15, fontWeight: "600" },
-  activitySub: { color: "#64748b", fontSize: 12, marginTop: 2 },
+  activityTitle: { color: colors.text, fontSize: 15, fontWeight: "600" },
+  activitySub: { color: colors.mutedText, fontSize: 12, marginTop: 2 },
 });
