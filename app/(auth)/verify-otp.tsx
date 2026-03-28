@@ -3,15 +3,10 @@ import { CustomButton } from "@/components/CustomButton";
 import { colors } from "@/config/colors";
 import { getErrorMessage } from "@/lib/api-error";
 import {
-  clearPendingSignup,
-  setCredentials,
-  setFaceLockEnabled,
-  useLoginMutation,
-  useRegisterMutation,
   useSendOtpMutation,
   useVerifyOtpMutation,
 } from "@/store/auth";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -29,19 +24,15 @@ import { moderateScale, scale, verticalScale } from "react-native-size-matters";
 import { HeaderLogo } from "./forgot";
 
 const VerifyOtpScreen: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const pendingSignup = useAppSelector((state) => state.auth.pendingSignup);
+
   const [otp, setOtp] = useState("");
   const router = useRouter();
-  const { email, path, mode } = useLocalSearchParams<{
+  const { email, path } = useLocalSearchParams<{
     email?: string;
     path?: string;
-    mode?: string;
   }>();
   const [verifyOtp, { isLoading: isVerifying }] = useVerifyOtpMutation();
   const [sendOtp, { isLoading: isResending }] = useSendOtpMutation();
-  const [register, { isLoading: isRegistering }] = useRegisterMutation();
-  const [login, { isLoading: isLoggingIn }] = useLoginMutation();
 
   async function verify() {
     if (!email) {
@@ -55,49 +46,7 @@ const VerifyOtpScreen: React.FC = () => {
     }
 
     try {
-      await verifyOtp({
-        email,
-        otp,
-      }).unwrap();
-
-      if (mode === "signup") {
-        if (!pendingSignup) {
-          Alert.alert("Sign up", "Signup details expired. Please try again.");
-          router.replace("/(auth)");
-          return;
-        }
-
-        const signupData = pendingSignup;
-
-        await register({
-          fullName: signupData.fullName,
-          email: signupData.email,
-          password: signupData.password,
-          confirmPassword: signupData.confirmPassword,
-          twoFactorEnabled: signupData.faceLockEnabled,
-        }).unwrap();
-
-        dispatch(clearPendingSignup());
-
-        try {
-          const loginResponse = await login({
-            email: signupData.email,
-            password: signupData.password,
-          }).unwrap();
-
-          dispatch(setCredentials(loginResponse.data));
-          dispatch(setFaceLockEnabled(signupData.faceLockEnabled));
-          router.replace("/(protected)/(tab)/(home)");
-        } catch {
-          Alert.alert(
-            "Account created",
-            "Email verified successfully. Please sign in to continue.",
-          );
-          router.replace("/(auth)");
-        }
-
-        return;
-      }
+      await verifyOtp({ email, otp }).unwrap();
 
       if (path) {
         router.replace({
@@ -109,10 +58,7 @@ const VerifyOtpScreen: React.FC = () => {
 
       router.replace("/(auth)");
     } catch (error) {
-      Alert.alert(
-        mode === "signup" ? "Sign up failed" : "Verification failed",
-        getErrorMessage(error),
-      );
+      Alert.alert("Verification failed", getErrorMessage(error));
     }
   }
 
@@ -157,13 +103,9 @@ const VerifyOtpScreen: React.FC = () => {
             />
           </View>
           <CustomButton
-            title={
-              isVerifying || isRegistering || isLoggingIn
-                ? "Verifying..."
-                : "Verify"
-            }
+            title={isVerifying ? "Verifying..." : "Verify"}
             onPress={() => void verify()}
-            disabled={isVerifying || isRegistering || isLoggingIn}
+            disabled={isVerifying}
           />
           <View style={styles.footer}>
             <Text style={styles.footerText}>
@@ -177,10 +119,7 @@ const VerifyOtpScreen: React.FC = () => {
           </View>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => {
-              dispatch(clearPendingSignup());
-              router.replace("/(auth)");
-            }}
+            onPress={() => router.replace("/(auth)")}
           >
             <Text style={styles.backText}>Back to Login</Text>
           </TouchableOpacity>

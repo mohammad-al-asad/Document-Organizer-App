@@ -1,16 +1,15 @@
 import * as LocalAuthentication from "expo-local-authentication";
-import { Platform } from "react-native";
 
-const faceType = LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION;
-
-export async function canUseFaceLock() {
-  const [hasHardware, isEnrolled, supportedTypes] = await Promise.all([
+/**
+ * Checks whether the device supports and has enrolled any biometric
+ * authentication method (fingerprint, face, iris, etc.).
+ * Does NOT restrict to a specific type — lets the OS decide.
+ */
+export async function canUseBiometrics() {
+  const [hasHardware, isEnrolled] = await Promise.all([
     LocalAuthentication.hasHardwareAsync(),
     LocalAuthentication.isEnrolledAsync(),
-    LocalAuthentication.supportedAuthenticationTypesAsync(),
   ]);
-
-  const hasFaceRecognition = supportedTypes.includes(faceType);
 
   if (!hasHardware) {
     return {
@@ -19,23 +18,11 @@ export async function canUseFaceLock() {
     };
   }
 
-  if (!hasFaceRecognition) {
-    return {
-      supported: false,
-      message:
-        Platform.OS === "ios"
-          ? "Face ID is not available on this device."
-          : "Face recognition is not available on this device.",
-    };
-  }
-
   if (!isEnrolled) {
     return {
       supported: false,
       message:
-        Platform.OS === "ios"
-          ? "Set up Face ID in device settings before enabling Face Unlock."
-          : "Set up face recognition in device settings before enabling Face Unlock.",
+        "No biometrics are enrolled on this device. Please set up fingerprint, face, or another biometric in your device settings.",
     };
   }
 
@@ -45,8 +32,12 @@ export async function canUseFaceLock() {
   };
 }
 
-export async function authenticateWithFaceLock() {
-  const supported = await canUseFaceLock();
+/**
+ * Triggers the OS-native biometric prompt.
+ * Works with any enrolled method: fingerprint, face, iris, etc.
+ */
+export async function authenticateWithBiometrics() {
+  const supported = await canUseBiometrics();
 
   if (!supported.supported) {
     return {
@@ -56,23 +47,22 @@ export async function authenticateWithFaceLock() {
   }
 
   const result = await LocalAuthentication.authenticateAsync({
-    promptMessage:
-      Platform.OS === "ios" ? "Unlock with Face ID" : "Unlock with Face Unlock",
-    promptDescription:
-      Platform.OS === "android"
-        ? "Use face recognition to unlock VaultLife."
-        : undefined,
-    promptSubtitle:
-      Platform.OS === "android" ? "Face verification required" : undefined,
+    promptMessage: "Verify your identity",
     cancelLabel: "Cancel",
     fallbackLabel: "",
-    disableDeviceFallback: true,
+    disableDeviceFallback: false,
   });
 
   return {
     success: result.success,
     message: result.success
       ? ""
-      : result.error || "Face Unlock verification failed.",
+      : result.error ?? "Biometric authentication failed.",
   };
 }
+
+// ── Backwards-compat aliases so nothing outside breaks immediately ──────────
+/** @deprecated Use canUseBiometrics() */
+export const canUseFaceLock = canUseBiometrics;
+/** @deprecated Use authenticateWithBiometrics() */
+export const authenticateWithFaceLock = authenticateWithBiometrics;

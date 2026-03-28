@@ -1,16 +1,17 @@
 import InfoContentScreen from "@/components/InfoContentScreen";
+import { useGetCommonContentQuery } from "@/store/app";
 import React from "react";
 
 const Terms = () => {
-  const termsData = [
-    "Lorem ipsum dolor sit amet consectetur. Imperdiet iaculis convallis bibendum massa id elementum consectetur neque mauris.",
-    "Lorem ipsum dolor sit amet consectetur. Imperdiet iaculis convallis bibendum massa id elementum consectetur neque mauris.",
-    "Lorem ipsum dolor sit amet consectetur. Imperdiet iaculis convallis bibendum massa id elementum consectetur neque mauris.",
-    "Lorem ipsum dolor sit amet consectetur. Imperdiet iaculis convallis bibendum massa id elementum consectetur neque mauris.",
-    "Lorem ipsum dolor sit amet consectetur. Imperdiet iaculis convallis bibendum massa id elementum consectetur neque mauris.",
-  ];
+  const { data, isLoading } = useGetCommonContentQuery();
 
-  return <InfoContentScreen title="Terms & Conditions" data={termsData} />;
+  return (
+    <InfoContentScreen
+      title="Terms & Conditions"
+      htmlContent={data?.data?.termsAndCondition}
+      isLoading={isLoading}
+    />
+  );
 };
 
 export default Terms;

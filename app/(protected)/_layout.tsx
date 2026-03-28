@@ -1,7 +1,8 @@
 import { BG } from "@/components/BG";
 import { CustomButton } from "@/components/CustomButton";
+import { colors } from "@/config/colors";
 import { getErrorMessage } from "@/lib/api-error";
-import { authenticateWithFaceLock } from "@/lib/face-lock";
+import { authenticateWithBiometrics } from "@/lib/face-lock";
 import {
   clearSession,
   setFaceLockVerified,
@@ -10,7 +11,7 @@ import {
 } from "@/store/auth";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { router, Slot } from "expo-router";
-import { ScanFace } from "lucide-react-native";
+import { Fingerprint } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -74,15 +75,15 @@ export default function ProtectedLayout() {
     }
   }, [accessToken, isBootstrapping]);
 
-  async function unlockWithFaceLock() {
+  async function unlockWithBiometrics() {
     setIsUnlocking(true);
 
-    const result = await authenticateWithFaceLock();
+    const result = await authenticateWithBiometrics();
 
     setIsUnlocking(false);
 
     if (!result.success) {
-      Alert.alert("Face Unlock", result.message);
+      Alert.alert("Biometric Unlock", result.message);
       return;
     }
 
@@ -98,7 +99,7 @@ export default function ProtectedLayout() {
       !isBootstrapping
     ) {
       hasPrompted.current = true;
-      void unlockWithFaceLock();
+      void unlockWithBiometrics();
     }
   }, [accessToken, faceLockEnabled, faceLockVerified, isBootstrapping]);
 
@@ -121,14 +122,14 @@ export default function ProtectedLayout() {
       <BG>
         <SafeAreaView style={styles.lockedContainer}>
           <View style={styles.lockedCard}>
-            <ScanFace size={44} style={styles.icon} />
-            <Text style={styles.title}>Face Unlock Enabled</Text>
+            <Fingerprint size={48} color={colors.main} style={styles.icon} />
+            <Text style={styles.title}>Biometric Unlock</Text>
             <Text style={styles.subtitle}>
-              Verify your face to open VaultLife.
+              Verify your identity to open VaultLife.
             </Text>
             <CustomButton
-              title={isUnlocking ? "Checking..." : "Unlock With Face Unlock"}
-              onPress={() => void unlockWithFaceLock()}
+              title={isUnlocking ? "Verifying..." : "Unlock with Biometrics"}
+              onPress={() => void unlockWithBiometrics()}
               disabled={isUnlocking}
             />
             <Text

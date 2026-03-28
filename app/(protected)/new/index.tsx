@@ -1,16 +1,16 @@
 import { BG } from "@/components/BG";
 import { CustomButton } from "@/components/CustomButton";
+import DocumentScanner from "@/components/DocumentScanner";
 import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import {
   ArrowLeft,
-  Box,
-  CheckCircle2,
-  ChevronDown,
-  FileText,
-  Folder,
-  Landmark,
-  Lock,
+  Camera,
+  CheckCircle,
+  CloudUpload,
+  FileUp,
+  Paperclip,
+  Scan,
 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
@@ -21,20 +21,61 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import ImagePicker from "react-native-image-crop-picker";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function AddNewRecord() {
-  const [selectedType, setSelectedType] = useState("Document");
+export default function DocumentsAndNotes() {
+  const [isScanning, setIsScanning] = useState(false);
+  const [photo, setPhoto] = useState<any>(null);
 
+  const openGallery = async () => {
+    // Ask permission first
+    // if (status !== "granted") {
+    //   alert("Permission to access gallery is required!");
+    //   return;
+    // }
+
+    try {
+      const result = await ImagePicker.openPicker({
+        freeStyleCropEnabled: true,
+        mediaType: "photo",
+        cropping: true,
+        cropperToolbarTitle: "Adjust Document",
+        cropperToolbarColor: "#0f172a",
+        cropperToolbarWidgetColor: "#ffffff",
+        cropperActiveWidgetColor: colors.main,
+      });
+      onSave(result);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onSave = (photo: any) => {
+    setPhoto(photo);
+    console.log("Photo Captured", photo);
+    setIsScanning(false);
+  };
+
+  if (isScanning) {
+    return (
+      <DocumentScanner
+        onClose={() => setIsScanning(false)}
+        openGallery={openGallery}
+        onSave={onSave}
+      />
+    );
+  }
   return (
     <BG style={styles.container}>
       <SafeAreaView style={{ flex: 1 }}>
-        {/* Header Navigation */}
+        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
             <ArrowLeft color={colors.text} size={24} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Add New Record</Text>
+          <Text style={styles.headerTitle}>Documents & Notes</Text>
           <TouchableOpacity>
             <Text style={styles.cancelText}>Cancel</Text>
           </TouchableOpacity>
@@ -44,104 +85,73 @@ export default function AddNewRecord() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.heroTitle}>Let&apos;s start with the basics</Text>
-          <Text style={styles.heroSub}>
-            Provide the core details for this new record.
-          </Text>
-
-          {/* Record Title Input */}
-          <View style={styles.inputWrapper}>
-            <TextInput
-              placeholder="Record Title"
-              placeholderTextColor={colors.mutedText}
-              style={styles.textInput}
-            />
-          </View>
-
-          {/* Category Selector */}
-          <Text style={styles.label}>CATEGORY</Text>
-          <TouchableOpacity style={styles.categorySelector}>
-            <View style={styles.categoryIconBox}>
-              <Folder color={colors.main} size={20} />
+          {/* Upload Assets Section */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Paperclip color={colors.main} size={20} style={{ marginRight: 8 }} />
+              <Text style={styles.cardTitle}>Upload Assets</Text>
             </View>
-            <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={styles.categoryPlaceholder}>Select Category</Text>
-              <Text style={styles.categorySub}>Choose where this belongs</Text>
-            </View>
-            <ChevronDown color={colors.mutedText} size={20} />
-          </TouchableOpacity>
 
-          {/* Type Selection Grid */}
-          <Text style={styles.label}>TYPE</Text>
-          <View style={styles.grid}>
-            <TypeCard
-              title="Document"
-              icon={<FileText size={24} />}
-              selected={selectedType === "Document"}
-              onPress={() => setSelectedType("Document")}
-            />
-            <TypeCard
-              title="Physical Asset"
-              icon={<Box size={24} />}
-              selected={selectedType === "Physical Asset"}
-              onPress={() => setSelectedType("Physical Asset")}
-            />
-            <TypeCard
-              title="Financial"
-              icon={<Landmark size={24} />}
-              selected={selectedType === "Financial"}
-              onPress={() => setSelectedType("Financial")}
-            />
-            <TypeCard
-              title="Credentials"
-              icon={<Lock size={24} />}
-              selected={selectedType === "Credentials"}
-              onPress={() => setSelectedType("Credentials")}
-            />
+            {/* Dashed Dropzone */}
+            <TouchableOpacity
+              onPress={() => setIsScanning(true)}
+              style={styles.dropzone}
+            >
+              <View style={styles.iconRow}>
+                <View style={styles.roundIconBox}>
+                  <Camera color={colors.main} size={22} />
+                </View>
+                <View style={[styles.roundIconBox, { marginLeft: 15 }]}>
+                  <CloudUpload color={colors.main} size={22} />
+                </View>
+              </View>
+              <Text style={styles.dropzoneText}>Tap to scan or upload</Text>
+            </TouchableOpacity>
+
+            {/* Primary Action Buttons */}
+            <TouchableOpacity
+              style={styles.scanDocBtn}
+              onPress={() => setIsScanning(true)}
+            >
+              <Scan color={colors.text} size={20} style={{ marginRight: 10 }} />
+              <Text style={styles.scanDocText}>Scan Doc</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.uploadFileBtn}
+              onPress={() => openGallery()}
+            >
+              <FileUp color={colors.text} size={20} style={{ marginRight: 10 }} />
+              <Text style={styles.uploadFileText}>Upload File</Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Description Input */}
-          <View style={styles.descContainer}>
-            <Text style={styles.descLabel}>Short Description (Optional)</Text>
-            <TextInput
-              placeholder="Desc."
-              placeholderTextColor={colors.mutedText}
-              multiline
-              numberOfLines={4}
-              style={styles.textArea}
-            />
-          </View>
         </ScrollView>
-        {/* Primary Action Button */}
+        {/* Save Button */}
         <CustomButton
-          title="Continue"
-          onPress={() => router.push("/(protected)/new/upload")}
-          style={styles.continueBtn}
-        />
+          title="Save Record"
+          onPress={() => {
+            console.log(photo);
+            router.push({
+              pathname: "/(protected)/new/details",
+              params: {
+                photo: JSON.stringify(photo),
+              },
+            });
+          }}
+          style={styles.saveBtn}
+          textStyle={styles.saveBtnText}
+        >
+          {/* Note: Your CustomButton might need adjustment to accept children for the icon */}
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <CheckCircle color={colors.text} size={20} style={{ marginRight: 8 }} />
+            <Text style={styles.saveBtnText}>Save Record</Text>
+          </View>
+        </CustomButton>
       </SafeAreaView>
     </BG>
   );
 }
-
-// Helper component for Type Cards
-const TypeCard = ({ title, icon, selected, onPress }: any) => (
-  <TouchableOpacity
-    onPress={onPress}
-    style={[styles.typeCard, selected && styles.typeCardSelected]}
-  >
-    {selected && (
-      <View style={styles.checkIcon}>
-        <CheckCircle2 color={colors.main} size={16} />
-      </View>
-    )}
-    <View style={selected ? { opacity: 1 } : { opacity: 0.6 }}>
-      {React.cloneElement(icon, { color: selected ? colors.main : colors.text })}
-    </View>
-    <Text style={[styles.typeText, selected && styles.typeTextSelected]}>
-      {title}
-    </Text>
-  </TouchableOpacity>
-);
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
@@ -154,108 +164,97 @@ const styles = StyleSheet.create({
   headerTitle: { color: colors.text, fontSize: 16, fontWeight: "bold" },
   cancelText: { color: colors.mutedText, fontSize: 16 },
 
-  scrollContent: { paddingBottom: 20 },
-  heroTitle: {
-    color: colors.text,
-    fontSize: 26,
-    fontWeight: "bold",
-    marginTop: 10,
-  },
-  heroSub: { color: colors.mutedText, fontSize: 15, marginTop: 8, marginBottom: 30 },
+  scrollContent: { paddingBottom: 40, paddingTop: 10 },
 
-  inputWrapper: {
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    height: 60,
-    justifyContent: "center",
-    marginBottom: 25,
-    borderWidth: 1,
-    borderColor: colors.main,
-  },
-  textInput: { color: colors.text, fontSize: 16 },
-
-  label: {
-    color: colors.mutedText,
-    fontSize: 12,
-    fontWeight: "bold",
-    marginBottom: 10,
-    letterSpacing: 1,
-  },
-
-  categorySelector: {
-    flexDirection: "row",
-    alignItems: "center",
+  card: {
     backgroundColor: colors.secondary,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: colors.border,
+    elevation:1,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  cardHeader: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
+  cardTitle: { color: colors.text, fontSize: 16, fontWeight: "bold" },
+
+  dropzone: {
+    borderWidth: 2,
+    borderColor: colors.main,
+    borderStyle: "dashed",
     borderRadius: 15,
-    padding: 15,
+    paddingVertical: 35,
+    alignItems: "center",
+    backgroundColor: "rgba(254, 212, 76, 0.15)",
     marginBottom: 20,
+  },
+  iconRow: { flexDirection: "row", marginBottom: 15 },
+  roundIconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(254, 212, 76, 0.15)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(254, 212, 76, 0.4)",
+  },
+  dropzoneText: { color: colors.mutedText, fontSize: 14 },
+
+  scanDocBtn: {
+    backgroundColor: colors.main,
+    flexDirection: "row",
+    height: 55,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  scanDocText: { color: colors.text, fontSize: 16, fontWeight: "bold" },
+
+  uploadFileBtn: {
+    backgroundColor: colors.surface,
+    flexDirection: "row",
+    height: 55,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 1,
     borderColor: colors.border,
   },
-  categoryIconBox: {
-    width: 45,
-    height: 45,
-    backgroundColor: "rgba(254, 212, 76, 0.2)",
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  categoryPlaceholder: { color: colors.text, fontSize: 16, fontWeight: "600" },
-  categorySub: { color: colors.mutedText, fontSize: 12, marginTop: 2 },
+  uploadFileText: { color: colors.text, fontSize: 16, fontWeight: "600" },
 
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
+  sectionLabel: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: "bold",
     marginBottom: 15,
   },
-  typeCard: {
-    width: "48%",
-    borderRadius: 15,
-    paddingVertical: 25,
-    alignItems: "center",
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
+  textAreaContainer: {
     backgroundColor: colors.surface,
-  },
-  typeCardSelected: {
-    backgroundColor: "rgba(254, 212, 76, 0.2)",
-    borderColor: colors.main,
-  },
-  checkIcon: { position: "absolute", top: 10, right: 10 },
-  typeText: {
-    color: colors.text,
-    fontSize: 14,
-    marginTop: 10,
-    fontWeight: "500",
-  },
-  typeTextSelected: { color: colors.text },
-
-  descContainer: {
-    backgroundColor: colors.secondary,
-    borderRadius: 15,
+    borderRadius: 12,
     padding: 15,
-    marginBottom: 10,
+    minHeight: 120,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  descLabel: {
-    color: colors.text,
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 10,
-  },
-  textArea: {
+  textArea: { color: colors.text, fontSize: 15, textAlignVertical: "top" },
+
+  optionalLabel: { color: colors.mutedText, fontSize: 13, marginBottom: 12 },
+  smallTextAreaContainer: {
     backgroundColor: colors.surface,
-    borderRadius: 10,
+    borderRadius: 12,
+    height: 80,
     padding: 12,
-    color: colors.text,
-    fontSize: 16,
-    textAlignVertical: "top",
-    minHeight: 100,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  continueBtn: {
-    marginTop: 20,
-  },
+  smallTextArea: { color: colors.text, fontSize: 15 },
+
+  saveBtn: { marginTop: 10 },
+  saveBtnText: { color: colors.text, fontSize: 18, fontWeight: "bold" },
 });

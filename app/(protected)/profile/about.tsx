@@ -1,4 +1,5 @@
 import InfoContentScreen from "@/components/InfoContentScreen";
+import { useGetCommonContentQuery } from "@/store/app";
 import React from "react";
 
 export const options = {
@@ -6,15 +7,15 @@ export const options = {
 };
 
 const About = () => {
-  const aboutData = [
-    "Lorem ipsum dolor sit amet consectetur. Imperdiet iaculis convallis bibendum massa id elementum consectetur neque mauris.",
-    "Lorem ipsum dolor sit amet consectetur. Imperdiet iaculis convallis bibendum massa id elementum consectetur neque mauris.",
-    "Lorem ipsum dolor sit amet consectetur. Imperdiet iaculis convallis bibendum massa id elementum consectetur neque mauris.",
-    "Lorem ipsum dolor sit amet consectetur. Imperdiet iaculis convallis bibendum massa id elementum consectetur neque mauris.",
-    "Lorem ipsum dolor sit amet consectetur. Imperdiet iaculis convallis bibendum massa id elementum consectetur neque mauris.",
-  ];
+  const { data, isLoading } = useGetCommonContentQuery();
 
-  return <InfoContentScreen title="About Us" data={aboutData} />;
+  return (
+    <InfoContentScreen
+      title="About Us"
+      htmlContent={data?.data?.aboutUs}
+      isLoading={isLoading}
+    />
+  );
 };
 
 export default About;

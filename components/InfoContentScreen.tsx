@@ -3,25 +3,32 @@ import { router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import React from "react";
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { moderateScale, verticalScale } from "react-native-size-matters";
+import RenderHtml from "react-native-render-html";
 import { BG } from "./BG";
 
 interface InfoContentScreenProps {
   title: string;
-  data: string[];
+  htmlContent?: string;
+  isLoading?: boolean;
 }
 
 const InfoContentScreen: React.FC<InfoContentScreenProps> = ({
   title,
-  data,
+  htmlContent,
+  isLoading,
 }) => {
+  const { width } = useWindowDimensions();
+
   return (
     <BG style={styles.container}>
       <SafeAreaView style={{ flex: 1 }}>
@@ -37,18 +44,37 @@ const InfoContentScreen: React.FC<InfoContentScreenProps> = ({
           <View style={styles.headerBtn} />
         </View>
 
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {data.map((item, index) => (
-            <View key={index} style={styles.itemContainer}>
-              <Text style={styles.numberText}>{index + 1}.</Text>
-
-              <Text style={styles.contentText}>{item}</Text>
-            </View>
-          ))}
-        </ScrollView>
+        {isLoading ? (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="large" color={colors.main} />
+          </View>
+        ) : (
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {htmlContent ? (
+              <RenderHtml
+                contentWidth={width - moderateScale(40)}
+                source={{ html: htmlContent }}
+                baseStyle={{ color: colors.text, fontSize: moderateScale(14), lineHeight: verticalScale(20) }}
+                tagsStyles={{
+                  h1: { color: colors.text },
+                  h2: { color: colors.text },
+                  h3: { color: colors.text },
+                  h4: { color: colors.text },
+                  h5: { color: colors.text },
+                  h6: { color: colors.text },
+                  p: { color: colors.text, marginBottom: verticalScale(10) },
+                  li: { color: colors.text },
+                  a: { color: colors.main },
+                }}
+              />
+            ) : (
+              <Text style={styles.contentText}>No content available.</Text>
+            )}
+          </ScrollView>
+        )}
       </SafeAreaView>
     </BG>
   );
@@ -60,28 +86,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: moderateScale(20),
     paddingVertical: 15,
   },
-  headerBtn: { width: 40, alignItems: "center" },
+  headerBtn: { width: 40, alignItems: "flex-start" },
   headerTitle: { color: colors.text, fontSize: 18, fontWeight: "700" },
   scrollContent: {
     paddingVertical: moderateScale(20),
-    paddingTop: verticalScale(10),
+    paddingHorizontal: moderateScale(20),
   },
-  itemContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: verticalScale(20),
-  },
-  numberText: {
-    fontSize: moderateScale(14),
-    color: colors.text,
-    fontWeight: "500",
-    marginRight: moderateScale(8),
-    width: moderateScale(20),
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   contentText: {
-    flex: 1,
     fontSize: moderateScale(14),
     color: colors.text,
     lineHeight: verticalScale(20),

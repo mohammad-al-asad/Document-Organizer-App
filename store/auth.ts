@@ -33,13 +33,6 @@ type Tokens = {
   refreshToken: string;
 };
 
-type PendingSignup = {
-  fullName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  faceLockEnabled: boolean;
-};
 
 type RootStateLike = {
   auth: {
@@ -54,7 +47,6 @@ export type AuthState = {
   refreshToken: string | null;
   faceLockEnabled: boolean;
   faceLockVerified: boolean;
-  pendingSignup: PendingSignup | null;
 };
 
 const initialState: AuthState = {
@@ -63,7 +55,6 @@ const initialState: AuthState = {
   refreshToken: null,
   faceLockEnabled: false,
   faceLockVerified: false,
-  pendingSignup: null,
 };
 
 const rawBaseQuery = fetchBaseQuery({
@@ -169,7 +160,6 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.refreshToken = null;
       state.faceLockVerified = false;
-      state.pendingSignup = null;
     },
     setFaceLockEnabled: (state, action: PayloadAction<boolean>) => {
       state.faceLockEnabled = action.payload;
@@ -182,12 +172,6 @@ const authSlice = createSlice({
     },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
-    },
-    setPendingSignup: (state, action: PayloadAction<PendingSignup>) => {
-      state.pendingSignup = action.payload;
-    },
-    clearPendingSignup: (state) => {
-      state.pendingSignup = null;
     },
   },
 });
@@ -270,6 +254,8 @@ export const authApi = createApi({
         phoneNumber?: string;
         address?: string;
         profileImage?: string;
+        dateOfBirth?: string;
+        country?: string;
       }
     >({
       query: (body) => ({
@@ -287,21 +273,6 @@ export const authApi = createApi({
           // ignore
         }
       },
-    }),
-    sendSupportReport: builder.mutation<
-      ApiResponse<{
-        userId: string;
-        title: string;
-        description: string;
-        status: string;
-      }>,
-      { title: string; description: string }
-    >({
-      query: (body) => ({
-        url: "/support",
-        method: "POST",
-        body,
-      }),
     }),
     refreshSession: builder.mutation<Tokens, void>({
       async queryFn(_arg, api, extraOptions) {
@@ -388,17 +359,14 @@ export const {
   useSetNewPasswordMutation,
   useVerifyOtpMutation,
   useUpdateProfileMutation,
-  useSendSupportReportMutation,
 } = authApi;
 
 export const {
-  clearPendingSignup,
   clearSession,
   setCredentials,
   setFaceLockEnabled,
   setFaceLockVerified,
   setUser,
-  setPendingSignup,
   updateTokens,
 } = authSlice.actions;
 

@@ -40,7 +40,7 @@ export default function OnboardingScreen() {
       <SplashScreen
         onFinish={() => {
           if (isLogged) {
-            router.replace("/(protected)/(tab)/(home)");
+            router.replace("/(auth)");
           } else {
             router.replace("/(auth)");
           }

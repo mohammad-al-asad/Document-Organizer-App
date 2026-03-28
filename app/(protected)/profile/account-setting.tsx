@@ -1,10 +1,10 @@
 import { BG } from "@/components/BG";
 import { colors } from "@/config/colors";
-import { authenticateWithFaceLock, canUseFaceLock } from "@/lib/face-lock";
+import { authenticateWithBiometrics, canUseBiometrics } from "@/lib/face-lock";
 import { setFaceLockEnabled } from "@/store/auth";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { router } from "expo-router";
-import { ArrowLeft, ChevronRight } from "lucide-react-native";
+import { ArrowLeft, ChevronRight, Fingerprint } from "lucide-react-native";
 import React from "react";
 import {
   Alert,
@@ -21,23 +21,23 @@ export default function AccountSettings() {
   const dispatch = useAppDispatch();
   const faceLockEnabled = useAppSelector((state) => state.auth.faceLockEnabled);
 
-  async function handleFaceLockToggle(value: boolean) {
+  async function handleBiometricToggle(value: boolean) {
     if (!value) {
       dispatch(setFaceLockEnabled(false));
       return;
     }
 
-    const supported = await canUseFaceLock();
+    const supported = await canUseBiometrics();
 
     if (!supported.supported) {
-      Alert.alert("Face Unlock unavailable", supported.message);
+      Alert.alert("Biometric Unlock unavailable", supported.message);
       return;
     }
 
-    const result = await authenticateWithFaceLock();
+    const result = await authenticateWithBiometrics();
 
     if (!result.success) {
-      Alert.alert("Face Unlock", result.message);
+      Alert.alert("Biometric Unlock", result.message);
       return;
     }
 
@@ -62,16 +62,21 @@ export default function AccountSettings() {
         >
           {/* Settings List */}
           <View style={styles.listContainer}>
-            <View style={styles.faceLockRow}>
-              <View>
-                <Text style={styles.itemText}>Face Unlock</Text>
-                <Text style={styles.itemSubText}>
-                  Require face recognition before opening the app
-                </Text>
+            <View style={styles.biometricRow}>
+              <View style={styles.biometricLeft}>
+                <View style={styles.biometricIconBadge}>
+                  <Fingerprint size={20} color={colors.main} />
+                </View>
+                <View style={styles.biometricTextGroup}>
+                  <Text style={styles.itemText}>Biometric Unlock</Text>
+                  <Text style={styles.itemSubText}>
+                    Use fingerprint or face to lock the app
+                  </Text>
+                </View>
               </View>
               <Switch
                 value={faceLockEnabled}
-                onValueChange={(value) => void handleFaceLockToggle(value)}
+                onValueChange={(value) => void handleBiometricToggle(value)}
                 trackColor={{ false: colors.border, true: colors.main }}
                 thumbColor={colors.surface}
                 ios_backgroundColor={colors.border}
@@ -142,14 +147,31 @@ const styles = StyleSheet.create({
   listContainer: {
     gap: 5, // Tight spacing between items
   },
-  faceLockRow: {
+  biometricRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 18,
+    paddingVertical: 16,
     paddingHorizontal: 5,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  biometricLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flex: 1,
+  },
+  biometricIconBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: `${colors.main}22`,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  biometricTextGroup: {
+    flex: 1,
   },
   itemRow: {
     flexDirection: "row",
