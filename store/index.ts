@@ -12,6 +12,7 @@ import {
 } from "redux-persist";
 import { appApi } from "./app";
 import { authApi, authReducer, type AuthState } from "./auth";
+import { documentApi } from "./document";
 
 const persistedAuthReducer = persistReducer<AuthState>(
   {
@@ -27,13 +28,14 @@ export const store = configureStore({
     auth: persistedAuthReducer,
     [authApi.reducerPath]: authApi.reducer,
     [appApi.reducerPath]: appApi.reducer,
+    [documentApi.reducerPath]: documentApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(authApi.middleware, appApi.middleware),
+    }).concat(authApi.middleware, appApi.middleware, documentApi.middleware),
 });
 
 export const persistor = persistStore(store);

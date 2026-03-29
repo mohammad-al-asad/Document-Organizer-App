@@ -14,6 +14,7 @@ import {
 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -92,20 +93,32 @@ export default function DocumentsAndNotes() {
               <Text style={styles.cardTitle}>Upload Assets</Text>
             </View>
 
-            {/* Dashed Dropzone */}
             <TouchableOpacity
               onPress={() => setIsScanning(true)}
-              style={styles.dropzone}
+              style={[
+                styles.dropzone,
+                photo && { paddingVertical: 0, overflow: "hidden", borderWidth: 0, backgroundColor: "transparent" },
+              ]}
             >
-              <View style={styles.iconRow}>
-                <View style={styles.roundIconBox}>
-                  <Camera color={colors.main} size={22} />
-                </View>
-                <View style={[styles.roundIconBox, { marginLeft: 15 }]}>
-                  <CloudUpload color={colors.main} size={22} />
-                </View>
-              </View>
-              <Text style={styles.dropzoneText}>Tap to scan or upload</Text>
+              {photo && photo.path ? (
+                <Image
+                  source={{ uri: photo.path }}
+                  style={{ width: "100%", height: 200, borderRadius: 15 }}
+                  resizeMode="cover"
+                />
+              ) : (
+                <>
+                  <View style={styles.iconRow}>
+                    <View style={styles.roundIconBox}>
+                      <Camera color={colors.main} size={22} />
+                    </View>
+                    <View style={[styles.roundIconBox, { marginLeft: 15 }]}>
+                      <CloudUpload color={colors.main} size={22} />
+                    </View>
+                  </View>
+                  <Text style={styles.dropzoneText}>Tap to scan or upload</Text>
+                </>
+              )}
             </TouchableOpacity>
 
             {/* Primary Action Buttons */}

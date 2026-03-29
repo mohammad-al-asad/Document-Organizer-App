@@ -74,4 +74,5 @@ export const appApi = createApi({
   }),
 });
 
-export const { useSendSupportReportMutation, useGetCommonContentQuery } = appApi;
+export const { useSendSupportReportMutation, useGetCommonContentQuery } =
+  appApi;

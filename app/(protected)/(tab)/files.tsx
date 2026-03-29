@@ -1,5 +1,6 @@
 import { BG } from "@/components/BG";
 import { colors } from "@/config/colors";
+import { useGetDocumentsQuery } from "@/store/document";
 import {
   Car,
   ChevronRight,
@@ -8,8 +9,10 @@ import {
   Search,
   ShieldPlus,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
+  ActivityIndicator,
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,8 +22,96 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+export const formatBytes = (bytes: number) => {
+  if (!bytes) return "0 MB";
+  const mb = bytes / (1024 * 1024);
+  return `${mb.toFixed(1)} MB`;
+};
+
+export const extractFormat = (mimeType: string) => {
+  if (!mimeType) return "FILE";
+  if (mimeType.includes("pdf")) return "PDF";
+  if (mimeType.includes("image")) return "IMG";
+  return mimeType.split("/")[1]?.toUpperCase() || "FILE";
+};
+
+export const timeAgo = (dateString: string) => {
+  if (!dateString) return "";
+  const diff = Math.floor(
+    (new Date().getTime() - new Date(dateString).getTime()) / 1000,
+  );
+  if (diff < 60) return "Just now";
+  const mins = Math.floor(diff / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days === 1) return `Yesterday`;
+  if (days < 30) return `${days}d ago`;
+  return new Date(dateString).toLocaleDateString();
+};
+
+export const getCategoryIcon = (
+  type: string,
+  size = 18,
+  customColor?: string,
+) => {
+  const t = type?.toLowerCase();
+  if (
+    t === "vehicle" ||
+    t === "vehicles" ||
+    t === "driving_license" ||
+    t === "vehicle_registration"
+  )
+    return <Car color={customColor || "#f97316"} size={size} />;
+  if (t === "home" || t === "property")
+    return <Home color={customColor || colors.main} size={size} />;
+  if (t === "health" || t === "medical_record")
+    return <ShieldPlus color={customColor || "#a855f7"} size={size} />;
+  return <FileText color={customColor || colors.mutedText} size={size} />;
+};
+
 export default function MyRecords() {
   const [activeFilter, setActiveFilter] = useState("All Records");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  const categoryParam =
+    activeFilter === "All Records" ? undefined : activeFilter.toLowerCase();
+    
+  const queryParams: Record<string, any> = {
+    documentCategory: categoryParam,
+  };
+  
+  if (debouncedSearch.trim()) {
+    queryParams.search = debouncedSearch.trim();
+  }
+
+  const { data: response, isLoading } = useGetDocumentsQuery(queryParams);
+  
+
+  const documents = response?.data || [];
+
+  const recentUploads = [...documents]
+    .sort(
+      (a: any, b: any) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
+    .slice(0, 3);
+
+  const recentActivity = [...documents]
+    .sort(
+      (a: any, b: any) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    )
+    .slice(0, 3);
 
   return (
     <BG style={styles.container}>
@@ -38,6 +129,8 @@ export default function MyRecords() {
               placeholder="Search documents..."
               placeholderTextColor={colors.mutedText}
               style={styles.searchInput}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
             />
           </View>
 
@@ -47,55 +140,67 @@ export default function MyRecords() {
             showsHorizontalScrollIndicator={false}
             style={styles.filterScroll}
           >
-            {["All Records", "Expiring Soon", "Insurance", "Legal"].map(
-              (filter) => (
-                <TouchableOpacity
-                  key={filter}
-                  onPress={() => setActiveFilter(filter)}
+            {[
+              "All Records",
+              "Health",
+              "Personal",
+              "Vehicle",
+              "Insurance",
+              "Legal",
+            ].map((filter) => (
+              <TouchableOpacity
+                key={filter}
+                onPress={() => setActiveFilter(filter)}
+                style={[
+                  styles.filterChip,
+                  activeFilter === filter && styles.filterChipActive,
+                ]}
+              >
+                <Text
                   style={[
-                    styles.filterChip,
-                    activeFilter === filter && styles.filterChipActive,
+                    styles.filterText,
+                    activeFilter === filter && styles.filterTextActive,
                   ]}
                 >
-                  <Text
-                    style={[
-                      styles.filterText,
-                      activeFilter === filter && styles.filterTextActive,
-                    ]}
-                  >
-                    {filter}
-                  </Text>
-                </TouchableOpacity>
-              ),
-            )}
+                  {filter}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </ScrollView>
 
           {/* Highlighted Records (Cards) */}
-          <RecordCard
-            title="Car Registration"
-            sub="Vehicle - Tesla Model 3"
-            date="Oct 24, 2024"
-            status="ACTIVE"
-            type="vehicle"
-          />
-
-          <RecordCard
-            title="Home Insurance"
-            sub="Property - 124 Main St"
-            date="in 5 days"
-            status="EXPIRING"
-            type="home"
-            showButton
-          />
-
-          <RecordCard
-            title="Health Insurance"
-            sub="Personal - Policy #8821"
-            date="in 5 days"
-            status="EXPIRING"
-            type="health"
-            showButton
-          />
+          {isLoading ? (
+            <View style={{ paddingVertical: 40, alignItems: "center" }}>
+              <ActivityIndicator size="large" color={colors.main} />
+            </View>
+          ) : documents.length > 0 ? (
+            documents.map((doc: any) => (
+              <RecordCard
+                key={doc._id}
+                title={doc.title || doc.originalName || "Document"}
+                sub={
+                  doc.extractedData?.documentNumber
+                    ? `ID - ${doc.extractedData.documentNumber}`
+                    : doc.documentCategory || "Uploaded Asset"
+                }
+                date={new Date(doc.createdAt).toLocaleDateString()}
+                status="ACTIVE"
+                type={doc.documentCategory?.toLowerCase()}
+                showButton={false}
+                fileUrl={doc.fileUrl}
+              />
+            ))
+          ) : (
+            <Text
+              style={{
+                color: colors.mutedText,
+                textAlign: "center",
+                marginVertical: 20,
+              }}
+            >
+              No records match this filter.
+            </Text>
+          )}
 
           {/* Recent Uploads Section */}
           <View style={styles.sectionHeader}>
@@ -105,18 +210,21 @@ export default function MyRecords() {
             </TouchableOpacity>
           </View>
 
-          <FileItem
-            icon={<Home color={colors.main} size={18} />}
-            name="Property Tax Receipt"
-            info="PDF - 2.4 MB"
-            time="Just now"
-          />
-          <FileItem
-            icon={<Car color="#f97316" size={18} />}
-            name="Vehicle Registration"
-            info="IMG - 4.1 MB"
-            time="2h ago"
-          />
+          {recentUploads.length > 0 ? (
+            recentUploads.map((doc: any) => (
+              <FileItem
+                key={`up-${doc._id}`}
+                icon={getCategoryIcon(doc.documentCategory, 18)}
+                name={doc.title || doc.originalName || "Document"}
+                info={`${extractFormat(doc.mimeType)} - ${formatBytes(doc.size)}`}
+                time={timeAgo(doc.createdAt)}
+              />
+            ))
+          ) : (
+            <Text style={{ color: colors.mutedText, textAlign: "center", marginBottom: 15 }}>
+              No recent uploads.
+            </Text>
+          )}
 
           {/* Recent Activity Section */}
           <View style={[styles.sectionHeader, { marginTop: 10 }]}>
@@ -126,21 +234,20 @@ export default function MyRecords() {
             </TouchableOpacity>
           </View>
 
-          <ActivityItem
-            icon={<FileText color="#3b82f6" size={18} />}
-            title="Car Insurance Policy"
-            sub="Updated 2h ago"
-          />
-          <ActivityItem
-            icon={
-              <View
-              >
-                <FileText color={colors.text} size={18} />
-              </View>
-            }
-            title="Warranty: Refrigerator"
-            sub="Added yesterday"
-          />
+          {recentActivity.length > 0 ? (
+            recentActivity.map((doc: any) => (
+              <ActivityItem
+                key={`act-${doc._id}`}
+                icon={getCategoryIcon(doc.documentCategory, 18)}
+                title={doc.title || doc.originalName || "Document"}
+                sub={`Updated ${timeAgo(doc.updatedAt)}`}
+              />
+            ))
+          ) : (
+            <Text style={{ color: colors.mutedText, textAlign: "center", marginBottom: 15 }}>
+              No recent activity.
+            </Text>
+          )}
         </ScrollView>
       </SafeAreaView>
     </BG>
@@ -149,20 +256,29 @@ export default function MyRecords() {
 
 // --- Sub-components ---
 
-const RecordCard = ({ title, sub, date, status, type, showButton }: any) => {
+const RecordCard = ({ title, sub, date, status, type, showButton, fileUrl }: any) => {
   const isExpiring = status === "EXPIRING";
+
+  const renderIcon = () => (
+    <View style={styles.imageOverlayIcon}>
+      {getCategoryIcon(type, 20)}
+    </View>
+  );
 
   return (
     <View style={styles.recordCard}>
       <View style={styles.cardTop}>
-        <View style={styles.cardImagePlaceholder}>
-          {/* In the real app, use an Image here. Using Icon for placeholder */}
-          <View style={styles.imageOverlayIcon}>
-            {type === "vehicle" && <Car color="#f97316" size={20} />}
-            {type === "home" && <Home color={colors.main} size={20} />}
-            {type === "health" && <ShieldPlus color="#a855f7" size={20} />}
-          </View>
-        </View>
+        {fileUrl ? (
+          <ImageBackground
+            source={{ uri: fileUrl }}
+            style={[styles.cardImagePlaceholder, { backgroundColor: "#000" }]}
+            imageStyle={{ borderRadius: 12, opacity: 0.6 }}
+          >
+            {renderIcon()}
+          </ImageBackground>
+        ) : (
+          <View style={styles.cardImagePlaceholder}>{renderIcon()}</View>
+        )}
         <View style={{ flex: 1, marginLeft: 15 }}>
           <View style={styles.rowBetween}>
             <Text style={styles.recordTitle}>{title}</Text>
@@ -273,6 +389,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 15,
     marginBottom: 15,
+    elevation: 1,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   cardTop: { flexDirection: "row" },
   cardImagePlaceholder: {
@@ -303,7 +424,12 @@ const styles = StyleSheet.create({
   statusExpiring: { backgroundColor: "rgba(249, 115, 22, 0.1)" },
   statusText: { fontSize: 10, fontWeight: "800" },
   dateLabel: { color: colors.mutedText, fontSize: 10, fontWeight: "600" },
-  dateValue: { color: colors.text, fontSize: 14, fontWeight: "bold", marginTop: 2 },
+  dateValue: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: "bold",
+    marginTop: 2,
+  },
   renewBtn: {
     backgroundColor: "rgba(249, 115, 22, 0.1)",
     paddingHorizontal: 12,
@@ -339,6 +465,11 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 15,
     marginBottom: 10,
+    elevation: 1,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   fileIconBox: {
     width: 40,
@@ -359,6 +490,11 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 15,
     marginBottom: 10,
+    elevation: 1,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   activityIconBox: {
     width: 40,

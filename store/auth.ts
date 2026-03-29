@@ -33,7 +33,6 @@ type Tokens = {
   refreshToken: string;
 };
 
-
 type RootStateLike = {
   auth: {
     accessToken: string | null;
@@ -61,8 +60,6 @@ const rawBaseQuery = fetchBaseQuery({
   baseUrl: apiUrl ? `${apiUrl}/auth` : "",
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootStateLike).auth.accessToken;
-
-    headers.set("Content-Type", "application/json");
 
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
@@ -246,20 +243,9 @@ export const authApi = createApi({
         body,
       }),
     }),
-    updateProfile: builder.mutation<
-      ApiResponse<User>,
-      {
-        fullName?: string;
-        email?: string;
-        phoneNumber?: string;
-        address?: string;
-        profileImage?: string;
-        dateOfBirth?: string;
-        country?: string;
-      }
-    >({
+    updateProfile: builder.mutation<ApiResponse<User>, FormData>({
       query: (body) => ({
-        url: "/user/me",
+        url: `${apiUrl}/user/me`,
         method: "PATCH",
         body,
       }),

@@ -1,5 +1,5 @@
 import { colors } from "@/config/colors";
-import { CameraView, FlashMode } from "expo-camera";
+import { CameraView, FlashMode, useCameraPermissions } from "expo-camera";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   CreditCard,
@@ -33,6 +33,38 @@ export default function DocumentScanner({ onClose, onSave, openGallery }: any) {
   const [mode, setMode] = useState("Scan");
   const [isAuto, setIsAuto] = useState(false);
   const cameraRef = useRef<CameraView | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+
+  if (!permission) {
+    return <View style={styles.cameraContainer} />;
+  }
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.center}>
+        <Text style={{ color: "white", marginBottom: 20, fontSize: 16 }}>
+          Camera access is required
+        </Text>
+        <TouchableOpacity
+          style={{
+            backgroundColor: colors.main,
+            paddingHorizontal: 20,
+            paddingVertical: 12,
+            borderRadius: 8,
+            marginBottom: 20,
+          }}
+          onPress={requestPermission}
+        >
+          <Text style={{ color: colors.text, fontWeight: "bold", fontSize: 16 }}>
+            Grant Permission
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onClose}>
+          <Text style={{ color: "#94a3b8", fontSize: 16 }}>Cancel</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   const getGuideSize = () => {
     switch (mode) {
@@ -129,9 +161,10 @@ export default function DocumentScanner({ onClose, onSave, openGallery }: any) {
           >
             {/* Shutter Row */}
             <View style={styles.shutter}>
-              <TouchableOpacity onPress={openGallery}>
+              <TouchableOpacity onPress={openGallery} style={styles.historyBtn}>
                 <Image
-                  style={styles.historyBtn}
+                  style={styles.historyImage}
+                  resizeMode="cover"
                   source={require("@/assets/images/icon.png")}
                 />
               </TouchableOpacity>
@@ -272,7 +305,14 @@ const styles = StyleSheet.create({
   historyBtn: {
     height: scale(50),
     width: scale(50),
-    borderRadius: 25,
+    borderRadius: scale(25),
+    overflow: "hidden",
+    backgroundColor:"#FED44C"
+  },
+  historyImage: {
+    height: "100%",
+    width: "100%",
+    borderRadius: scale(25),
   },
 
   autoBtn: {

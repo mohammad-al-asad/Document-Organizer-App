@@ -127,14 +127,13 @@ export default function EditProfile() {
   }
 
   async function onSubmit(values: EditFormValues) {
-    const payload: Record<string, string> = {
-      fullName: values.fullName,
-    };
-    if (values.dateOfBirth) payload.dateOfBirth = values.dateOfBirth;
-    if (values.country) payload.country = values.country;
+    const formData = new FormData();
+    formData.append("fullName", values.fullName);
+    if (values.dateOfBirth) formData.append("dateOfBirth", values.dateOfBirth);
+    if (values.country) formData.append("country", values.country);
 
     try {
-      await updateProfile(payload).unwrap();
+      await updateProfile(formData).unwrap();
       Alert.alert("Success", "Profile updated successfully.");
       router.replace("/(protected)/(tab)/profile");
     } catch (error) {
