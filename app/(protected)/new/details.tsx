@@ -4,10 +4,12 @@ import { router, useLocalSearchParams } from "expo-router";
 import {
   ArrowLeft,
   Bell,
+  ChevronDown,
   ChevronRight,
   Download,
   Edit2,
   FileText,
+  Folder,
   Info,
   Maximize,
   Share2,
@@ -98,7 +100,18 @@ export default function RecordDetails() {
                 </View>
               </View>
             </View>
-
+          {/* Category Selector */}
+          <Text style={styles.label}>CATEGORY</Text>
+          <TouchableOpacity style={styles.categorySelector}>
+            <View style={styles.categoryIconBox}>
+              <Folder color={colors.main} size={20} />
+            </View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.categoryPlaceholder}>Select Category</Text>
+              <Text style={styles.categorySub}>Choose where this belongs</Text>
+            </View>
+            <ChevronDown color={colors.mutedText} size={20} />
+          </TouchableOpacity>
             {/* Details Card */}
             <View style={styles.detailsCard}>
               <View style={styles.sectionHeader}>
@@ -108,8 +121,8 @@ export default function RecordDetails() {
 
               <View style={styles.gridRow}>
                 <View style={styles.gridItem}>
-                  <Text style={styles.label}>CATEGORY</Text>
-                  <Text style={styles.valueText}>Real Estate</Text>
+                  <Text style={styles.label}>Title</Text>
+                  <Text style={styles.valueText}>Car registration</Text>
                 </View>
                 <View style={styles.gridItem}>
                   <Text style={styles.label}>DATE ISSUED</Text>
@@ -117,16 +130,15 @@ export default function RecordDetails() {
                 </View>
               </View>
 
-              <View style={styles.assetValueBox}>
+              {/* <View style={styles.assetValueBox}>
                 <Text style={styles.label}>ASSET VALUE</Text>
                 <Text style={styles.currencyValue}>$850,000.00</Text>
-              </View>
+              </View> */}
 
               <View>
-                <Text style={styles.label}>NOTES</Text>
+                <Text style={styles.label}>Others</Text>
                 <Text style={styles.notesText}>
-                  Original deed for the downtown property. Includes easement
-                  details for the northern boundary utility access.
+
                 </Text>
               </View>
             </View>
@@ -381,4 +393,24 @@ const styles = StyleSheet.create({
     borderColor: "rgba(239, 68, 68, 0.2)",
   },
   actionLabel: { color: colors.mutedText, fontSize: 11 },
+  categorySelector: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.secondary,
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  categoryIconBox: {
+    width: 45,
+    height: 45,
+    backgroundColor: "rgba(254, 212, 76, 0.2)",
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  categoryPlaceholder: { color: colors.text, fontSize: 16, fontWeight: "600" },
+  categorySub: { color: colors.mutedText, fontSize: 12, marginTop: 2 },
 });
