@@ -13,6 +13,7 @@ import {
 import { appApi } from "./app";
 import { authApi, authReducer, type AuthState } from "./auth";
 import { documentApi } from "./document";
+import { reminderApi } from "./reminder";
 
 const persistedAuthReducer = persistReducer<AuthState>(
   {
@@ -29,13 +30,14 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [appApi.reducerPath]: appApi.reducer,
     [documentApi.reducerPath]: documentApi.reducer,
+    [reminderApi.reducerPath]: reminderApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(authApi.middleware, appApi.middleware, documentApi.middleware),
+    }).concat(authApi.middleware, appApi.middleware, documentApi.middleware, reminderApi.middleware),
 });
 
 export const persistor = persistStore(store);

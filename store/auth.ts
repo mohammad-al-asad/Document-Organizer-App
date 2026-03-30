@@ -6,6 +6,8 @@ import type {
 } from "@reduxjs/toolkit/query";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+import { baseQuery } from "./api";
+
 const apiUrl = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, "");
 
 export type User = {
@@ -16,28 +18,26 @@ export type User = {
   twoFactorEnabled: boolean;
   createdAt?: string;
   updatedAt?: string;
+  profileImage?: string;
   notificationPreferences?: {
     email?: boolean;
     push?: boolean;
   };
+  dateOfBirth?: string;
+  country?: string;
+  phoneNumber?: string;
+  address?: string;
 };
 
-type ApiResponse<T> = {
+export type ApiResponse<T> = {
   success: boolean;
   message: string;
   data: T;
 };
 
-type Tokens = {
+export type Tokens = {
   accessToken: string;
   refreshToken: string;
-};
-
-type RootStateLike = {
-  auth: {
-    accessToken: string | null;
-    refreshToken: string | null;
-  };
 };
 
 export type AuthState = {
@@ -54,88 +54,6 @@ const initialState: AuthState = {
   refreshToken: null,
   faceLockEnabled: false,
   faceLockVerified: false,
-};
-
-const rawBaseQuery = fetchBaseQuery({
-  baseUrl: apiUrl ? `${apiUrl}/auth` : "",
-  prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootStateLike).auth.accessToken;
-
-    if (token) {
-      headers.set("Authorization", `Bearer ${token}`);
-    }
-
-    return headers;
-  },
-});
-
-function getTokensFromResponse(response: Tokens | ApiResponse<Tokens>) {
-  return "data" in response ? response.data : response;
-}
-
-function getRequestUrl(args: string | FetchArgs) {
-  return typeof args === "string" ? args : args.url;
-}
-
-const baseQuery: BaseQueryFn<
-  string | FetchArgs,
-  unknown,
-  FetchBaseQueryError | { status: string; data: { message: string } }
-> = async (args, api, extraOptions) => {
-  if (!apiUrl) {
-    return {
-      error: {
-        status: "CUSTOM_ERROR",
-        data: { message: "Missing EXPO_PUBLIC_API_URL" },
-      },
-    };
-  }
-
-  let result = await rawBaseQuery(args, api, extraOptions);
-
-  if (
-    result.error?.status === 401 &&
-    getRequestUrl(args) !== "/refresh-token"
-  ) {
-    const refreshToken = (api.getState() as RootStateLike).auth.refreshToken;
-
-    if (!refreshToken) {
-      api.dispatch(clearSession());
-      return result;
-    }
-
-    const refreshResult = await rawBaseQuery(
-      {
-        url: "/refresh-token",
-        method: "POST",
-        headers: {
-          Cookie: `refreshToken=${refreshToken}`,
-        },
-      },
-      api,
-      extraOptions,
-    );
-
-    if ("data" in refreshResult && refreshResult.data) {
-      const tokens = getTokensFromResponse(
-        refreshResult.data as Tokens | ApiResponse<Tokens>,
-      );
-
-      api.dispatch(updateTokens(tokens));
-      result = await rawBaseQuery(args, api, extraOptions);
-    } else {
-      api.dispatch(clearSession());
-
-      return {
-        error: refreshResult.error ?? {
-          status: "CUSTOM_ERROR",
-          data: { message: "Session expired" },
-        },
-      };
-    }
-  }
-
-  return result;
 };
 
 const authSlice = createSlice({
@@ -188,7 +106,7 @@ export const authApi = createApi({
       }
     >({
       query: (body) => ({
-        url: "/register",
+        url: "/auth/register",
         method: "POST",
         body,
       }),
@@ -201,7 +119,7 @@ export const authApi = createApi({
       }
     >({
       query: (body) => ({
-        url: "/login",
+        url: "/auth/login",
         method: "POST",
         body,
       }),
@@ -211,7 +129,7 @@ export const authApi = createApi({
       { email: string }
     >({
       query: (body) => ({
-        url: "/send-otp",
+        url: "/auth/send-otp",
         method: "POST",
         body,
       }),
@@ -224,7 +142,7 @@ export const authApi = createApi({
       }
     >({
       query: (body) => ({
-        url: "/verify-otp",
+        url: "/auth/verify-otp",
         method: "POST",
         body,
       }),
@@ -238,14 +156,28 @@ export const authApi = createApi({
       }
     >({
       query: (body) => ({
-        url: "/set-new-password",
+        url: "/auth/set-new-password",
+        method: "POST",
+        body,
+      }),
+    }),
+    changePassword: builder.mutation<
+      { success: boolean; message: string },
+      {
+        currentPassword: string;
+        newPassword: string;
+        confirmPassword: string;
+      }
+    >({
+      query: (body) => ({
+        url: "/auth/change-password",
         method: "POST",
         body,
       }),
     }),
     updateProfile: builder.mutation<ApiResponse<User>, FormData>({
       query: (body) => ({
-        url: `${apiUrl}/user/me`,
+        url: "/user/me",
         method: "PATCH",
         body,
       }),
@@ -260,78 +192,17 @@ export const authApi = createApi({
         }
       },
     }),
-    refreshSession: builder.mutation<Tokens, void>({
-      async queryFn(_arg, api, extraOptions) {
-        const refreshToken = (api.getState() as RootStateLike).auth
-          .refreshToken;
-
-        if (!refreshToken) {
-          return {
-            error: {
-              status: "CUSTOM_ERROR",
-              data: { message: "Missing refresh token" },
-            },
-          };
-        }
-
-        const result = await rawBaseQuery(
-          {
-            url: "/refresh-token",
-            method: "POST",
-            headers: {
-              Cookie: `refreshToken=${refreshToken}`,
-            },
-          },
-          api,
-          extraOptions,
-        );
-
-        if ("error" in result) {
-          return {
-            error: result.error ?? {
-              status: "CUSTOM_ERROR",
-              data: { message: "Could not refresh session" },
-            },
-          };
-        }
-
-        const tokens = getTokensFromResponse(
-          result.data as Tokens | ApiResponse<Tokens>,
-        );
-
-        return { data: tokens };
-      },
+    refreshSession: builder.mutation<ApiResponse<Tokens>, void>({
+      query: () => ({
+        url: "/auth/refresh-token",
+        method: "POST",
+      }),
     }),
-    logout: builder.mutation<{ success: boolean; message: string }, void>({
-      async queryFn(_arg, api, extraOptions) {
-        const refreshToken = (api.getState() as RootStateLike).auth
-          .refreshToken;
-
-        const result = await rawBaseQuery(
-          {
-            url: "/logout",
-            method: "POST",
-            headers: refreshToken
-              ? {
-                  Cookie: `refreshToken=${refreshToken}`,
-                }
-              : undefined,
-          },
-          api,
-          extraOptions,
-        );
-
-        if ("error" in result) {
-          return {
-            error: result.error ?? {
-              status: "CUSTOM_ERROR",
-              data: { message: "Could not log out" },
-            },
-          };
-        }
-
-        return { data: result.data as { success: boolean; message: string } };
-      },
+    logout: builder.mutation<ApiResponse<void>, void>({
+      query: () => ({
+        url: "/auth/logout",
+        method: "POST",
+      }),
     }),
   }),
 });
@@ -345,6 +216,7 @@ export const {
   useSetNewPasswordMutation,
   useVerifyOtpMutation,
   useUpdateProfileMutation,
+  useChangePasswordMutation,
 } = authApi;
 
 export const {

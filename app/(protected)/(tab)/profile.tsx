@@ -1,9 +1,10 @@
+import React from "react";
 import { BG } from "@/components/BG";
 import { colors } from "@/config/colors";
 import { clearSession, useLogoutMutation } from "@/store/auth";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { router } from "expo-router";
-import { ChevronRight } from "lucide-react-native";
+import { ChevronRight, User } from "lucide-react-native";
 import {
   Alert,
   Image,
@@ -41,10 +42,11 @@ export default function ProfileScreen() {
           {/* Profile Header */}
           <View style={styles.profileHeader}>
             <View style={styles.avatarContainer}>
-              <Image
-                source={{ uri: "https://i.pravatar.cc/150?u=alex" }}
-                style={styles.avatar}
-              />
+              {user?.profileImage ? (
+                <Image source={{ uri: user.profileImage }} style={styles.avatar} />
+              ) : (
+                <User color={colors.main} size={40} />
+              )}
             </View>
             <View style={styles.profileInfo}>
               <Text style={styles.userName}>

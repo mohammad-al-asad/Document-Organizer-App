@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Pencil,
   Search,
+  User,
   X,
 } from "lucide-react-native";
 import React, { useState } from "react";
@@ -21,6 +22,7 @@ import {
   Alert,
   FlatList,
   Image,
+  Keyboard,
   Modal,
   Platform,
   Pressable,
@@ -31,26 +33,103 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import ImagePicker from "react-native-image-crop-picker";
+import Animated, {
+  useAnimatedKeyboard,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
 
 // ── Country list ────────────────────────────────────────────────────────────
 const COUNTRIES = [
-  "Afghanistan", "Albania", "Algeria", "Argentina", "Australia", "Austria",
-  "Azerbaijan", "Bahrain", "Bangladesh", "Belgium", "Bolivia", "Brazil",
-  "Cambodia", "Canada", "Chile", "China", "Colombia", "Croatia", "Cuba",
-  "Czech Republic", "Denmark", "Ecuador", "Egypt", "Ethiopia", "Finland",
-  "France", "Georgia", "Germany", "Ghana", "Greece", "Hungary", "India",
-  "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Japan",
-  "Jordan", "Kazakhstan", "Kenya", "Kuwait", "Kyrgyzstan", "Lebanon",
-  "Libya", "Malaysia", "Mexico", "Morocco", "Myanmar", "Nepal",
-  "Netherlands", "New Zealand", "Nigeria", "Norway", "Pakistan", "Peru",
-  "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia",
-  "Saudi Arabia", "Serbia", "Singapore", "South Africa", "South Korea",
-  "Spain", "Sri Lanka", "Sweden", "Switzerland", "Syria", "Taiwan",
-  "Thailand", "Tunisia", "Turkey", "UAE", "Uganda", "Ukraine",
-  "United Kingdom", "United States", "Uzbekistan", "Venezuela", "Vietnam",
-  "Yemen", "Zimbabwe",
+  "Afghanistan",
+  "Albania",
+  "Algeria",
+  "Argentina",
+  "Australia",
+  "Austria",
+  "Azerbaijan",
+  "Bahrain",
+  "Bangladesh",
+  "Belgium",
+  "Bolivia",
+  "Brazil",
+  "Cambodia",
+  "Canada",
+  "Chile",
+  "China",
+  "Colombia",
+  "Croatia",
+  "Cuba",
+  "Czech Republic",
+  "Denmark",
+  "Ecuador",
+  "Egypt",
+  "Ethiopia",
+  "Finland",
+  "France",
+  "Georgia",
+  "Germany",
+  "Ghana",
+  "Greece",
+  "Hungary",
+  "India",
+  "Indonesia",
+  "Iran",
+  "Iraq",
+  "Ireland",
+  "Israel",
+  "Italy",
+  "Japan",
+  "Jordan",
+  "Kazakhstan",
+  "Kenya",
+  "Kuwait",
+  "Kyrgyzstan",
+  "Lebanon",
+  "Libya",
+  "Malaysia",
+  "Mexico",
+  "Morocco",
+  "Myanmar",
+  "Nepal",
+  "Netherlands",
+  "New Zealand",
+  "Nigeria",
+  "Norway",
+  "Pakistan",
+  "Peru",
+  "Philippines",
+  "Poland",
+  "Portugal",
+  "Qatar",
+  "Romania",
+  "Russia",
+  "Saudi Arabia",
+  "Serbia",
+  "Singapore",
+  "South Africa",
+  "South Korea",
+  "Spain",
+  "Sri Lanka",
+  "Sweden",
+  "Switzerland",
+  "Syria",
+  "Taiwan",
+  "Thailand",
+  "Tunisia",
+  "Turkey",
+  "UAE",
+  "Uganda",
+  "Ukraine",
+  "United Kingdom",
+  "United States",
+  "Uzbekistan",
+  "Venezuela",
+  "Vietnam",
+  "Yemen",
+  "Zimbabwe",
 ].sort();
 
 // ── Zod schema ──────────────────────────────────────────────────────────────
@@ -87,6 +166,11 @@ function buildIsoDate(year: string, month: string, day: string) {
 export default function EditProfile() {
   const user = useAppSelector((s) => s.auth.user);
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+  const keyboard = useAnimatedKeyboard();
+
+  const animatedKeyboardStyle = useAnimatedStyle(() => ({
+    marginBottom: keyboard.height.value,
+  }));
 
   // Country modal
   const [countryModalOpen, setCountryModalOpen] = useState(false);
@@ -98,6 +182,8 @@ export default function EditProfile() {
   const [tempYear, setTempYear] = useState(initDate.year);
   const [tempMonth, setTempMonth] = useState(initDate.month);
   const [tempDay, setTempDay] = useState(initDate.day);
+
+  const [selectedImage, setSelectedImage] = useState<any>(null);
 
   const {
     control,
@@ -132,6 +218,17 @@ export default function EditProfile() {
     if (values.dateOfBirth) formData.append("dateOfBirth", values.dateOfBirth);
     if (values.country) formData.append("country", values.country);
 
+    if (selectedImage) {
+      formData.append("profileImage", {
+        uri:
+          Platform.OS === "ios"
+            ? selectedImage.path.replace("file://", "")
+            : selectedImage.path,
+        type: selectedImage.mime,
+        name: selectedImage.path.split("/").pop() || "profile.jpg",
+      } as any);
+    }
+
     try {
       await updateProfile(formData).unwrap();
       Alert.alert("Success", "Profile updated successfully.");
@@ -151,6 +248,7 @@ export default function EditProfile() {
     const iso = buildIsoDate(tempYear, tempMonth, tempDay);
     setValue("dateOfBirth", iso, { shouldValidate: true });
     setDateModalOpen(false);
+    Keyboard.dismiss();
   }
 
   return (
@@ -175,11 +273,38 @@ export default function EditProfile() {
           {/* Avatar */}
           <View style={styles.avatarSection}>
             <View style={styles.avatarWrapper}>
-              <Image
-                source={{ uri: "https://i.pravatar.cc/150?u=alex" }}
-                style={styles.avatar}
-              />
-              <TouchableOpacity style={styles.editBadge}>
+              {selectedImage?.path || (user as any)?.profileImage ? (
+                <Image
+                  source={{
+                    uri: selectedImage?.path || (user as any)?.profileImage,
+                  }}
+                  style={styles.avatar}
+                />
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <User color={colors.main} size={50} />
+                </View>
+              )}
+              <TouchableOpacity
+                style={styles.editBadge}
+                onPress={() => {
+                  ImagePicker.openPicker({
+                    width: 300,
+                    height: 300,
+                    cropping: true,
+                    cropperCircleOverlay: true,
+                    mediaType: "photo",
+                  })
+                    .then((image) => {
+                      setSelectedImage(image);
+                    })
+                    .catch((err) => {
+                      if (err.code !== "E_PICKER_CANCELLED") {
+                        console.log(err);
+                      }
+                    });
+                }}
+              >
                 <Pencil color={colors.text} size={12} strokeWidth={3} />
               </TouchableOpacity>
             </View>
@@ -201,7 +326,9 @@ export default function EditProfile() {
                   onBlur={field.onBlur}
                 />
                 {errors.fullName && (
-                  <Text style={styles.errorText}>{errors.fullName.message}</Text>
+                  <Text style={styles.errorText}>
+                    {errors.fullName.message}
+                  </Text>
                 )}
               </View>
             )}
@@ -278,70 +405,93 @@ export default function EditProfile() {
           style={styles.modalBackdrop}
           onPress={() => setCountryModalOpen(false)}
         />
-        <View style={styles.modalSheet}>
-          {/* Modal header */}
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Select Country</Text>
-            <TouchableOpacity onPress={() => setCountryModalOpen(false)}>
-              <X color={colors.text} size={22} />
-            </TouchableOpacity>
-          </View>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "flex-end",
+            alignItems: "baseline",
+            width: "100%",
+          }}
+        >
+          <View style={styles.modalSheet}>
+            {/* Modal header */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Country</Text>
+              <TouchableOpacity onPress={() => setCountryModalOpen(false)}>
+                <X color={colors.text} size={22} />
+              </TouchableOpacity>
+            </View>
 
-          {/* Search bar */}
-          <View style={styles.searchBar}>
-            <Search size={16} color={colors.subtleText} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search country..."
-              placeholderTextColor={colors.subtleText}
-              value={countrySearch}
-              onChangeText={setCountrySearch}
-              autoFocus
+            {/* Search bar */}
+            <View style={styles.searchBar}>
+              <Search size={16} color={colors.subtleText} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search country..."
+                placeholderTextColor={colors.subtleText}
+                value={countrySearch}
+                onChangeText={setCountrySearch}
+                autoFocus
+              />
+            </View>
+
+            {/* Country list */}
+            <FlatList
+              data={filteredCountries}
+              keyExtractor={(item) => item}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.countryItem}
+                  onPress={() => {
+                    setValue("country", item, { shouldValidate: true });
+                    setCountryModalOpen(false);
+                  }}
+                >
+                  <Text style={styles.countryItemText}>{item}</Text>
+                  {currentCountry === item && (
+                    <Check size={18} color={colors.main} />
+                  )}
+                </TouchableOpacity>
+              )}
+              ItemSeparatorComponent={() => (
+                <View style={{ height: 1, backgroundColor: colors.border }} />
+              )}
             />
           </View>
-
-          {/* Country list */}
-          <FlatList
-            data={filteredCountries}
-            keyExtractor={(item) => item}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.countryItem}
-                onPress={() => {
-                  setValue("country", item, { shouldValidate: true });
-                  setCountryModalOpen(false);
-                }}
-              >
-                <Text style={styles.countryItemText}>{item}</Text>
-                {currentCountry === item && (
-                  <Check size={18} color={colors.main} />
-                )}
-              </TouchableOpacity>
-            )}
-            ItemSeparatorComponent={() => (
-              <View style={{ height: 1, backgroundColor: colors.border }} />
-            )}
-          />
         </View>
       </Modal>
 
       {/* ═══════════════ Date of Birth Modal ═══════════════ */}
-      <Modal
-        visible={dateModalOpen}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setDateModalOpen(false)}
+
+      <Pressable
+        style={{
+          flex: 1,
+          justifyContent: "flex-end",
+          alignItems: "baseline",
+          display: dateModalOpen ? "flex" : "none",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 1000,
+        }}
+        onPress={() => {
+          setDateModalOpen(false);
+          Keyboard.dismiss();
+        }}
       >
-        <Pressable
-          style={styles.modalBackdrop}
-          onPress={() => setDateModalOpen(false)}
-        />
-        <View style={[styles.modalSheet, { paddingBottom: 24 }]}>
+        <Animated.View style={[styles.modalSheet, animatedKeyboardStyle]}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Date of Birth</Text>
-            <TouchableOpacity onPress={() => setDateModalOpen(false)}>
+            <TouchableOpacity
+              onPress={() => {
+                setDateModalOpen(false);
+                Keyboard.dismiss();
+              }}
+            >
               <X color={colors.text} size={22} />
             </TouchableOpacity>
           </View>
@@ -402,8 +552,8 @@ export default function EditProfile() {
             onPress={confirmDate}
             style={{ marginTop: 20 }}
           />
-        </View>
-      </Modal>
+        </Animated.View>
+      </Pressable>
     </BG>
   );
 }
@@ -433,6 +583,14 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   avatar: { width: "100%", height: "100%", borderRadius: 50 },
+  avatarPlaceholder: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.surface,
+  },
   editBadge: {
     position: "absolute",
     bottom: 0,
@@ -488,7 +646,7 @@ const styles = StyleSheet.create({
 
   // Modal shared
   modalBackdrop: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
   },
   modalSheet: {
     backgroundColor: colors.surface,
@@ -496,6 +654,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 28,
     padding: 20,
     maxHeight: "75%",
+    width: "100%",
     // shadow
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -4 },

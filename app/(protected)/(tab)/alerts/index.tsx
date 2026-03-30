@@ -2,17 +2,42 @@ import { BG } from "@/components/BG";
 import { colors } from "@/config/colors";
 import { router } from "expo-router";
 import {
+  Activity,
+  Baby,
+  BadgeCheck,
+  Bell,
+  Briefcase,
   Calendar,
   Car,
+  CheckSquare,
   Clock,
   CreditCard,
+  DollarSign,
   FileText,
+  Globe,
+  GraduationCap,
+  Heart,
   Home,
+  Landmark,
+  Languages,
   Pencil,
+  Plane,
   Plus,
+  Shield,
+  ShieldCheck,
+  ShieldPlus,
+  Trash2,
+  User,
+  Utensils,
+  Zap,
 } from "lucide-react-native";
+import { getCategoryStyle } from "@/config/categories";
+import { useGetRemindersQuery, useDeleteReminderMutation } from "@/store/reminder";
+import { Skeleton } from "@/components/Skeleton";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -23,6 +48,34 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RemindersScreen() {
   const [activeTab, setActiveTab] = useState("Upcoming");
+  
+  // Map UI tabs to API filter values
+  const apiFilter = activeTab.toLowerCase();
+  
+  const { data: response, isLoading } = useGetRemindersQuery(apiFilter);
+  const [deleteReminder] = useDeleteReminderMutation();
+  const reminders = response?.data || [];
+
+  const handleDelete = (id: string) => {
+    Alert.alert(
+      "Delete Reminder",
+      "Are you sure you want to delete this reminder?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive", 
+          onPress: async () => {
+            try {
+              await deleteReminder(id).unwrap();
+            } catch (error: any) {
+              Alert.alert("Error", error.data?.message || "Failed to delete reminder");
+            }
+          }
+        }
+      ]
+    );
+  };
 
   return (
     <BG style={styles.container}>
@@ -58,40 +111,52 @@ export default function RemindersScreen() {
             ))}
           </View>
 
-          {/* Today Section */}
-          <Text style={styles.sectionLabel}>TODAY</Text>
-          <ReminderCard
-            title="Car Insurance Renewal"
-            subtitle="Policy #9822-AC"
-            time="Today, 5:00 PM"
-            tag="YEARLY"
-            icon={<Car size={20} color={colors.main} />}
-            hasBorder
-          />
-          <ReminderCard
-            title="Amex Gold Payment"
-            subtitle="Min due: $145.00"
-            time="Today, 8:00 PM"
-            tag="MONTHLY"
-            icon={<CreditCard size={20} color={colors.main} />}
-          />
+          {isLoading ? (
+            <View style={{ marginTop: 10 }}>
+              {[1, 2, 3].map((i) => (
+                <View key={i} style={[styles.card, { padding: 16, marginBottom: 15 }]}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                     <Skeleton width={44} height={44} borderRadius={22} />
+                     <View style={{ flex: 1, marginLeft: 12 }}>
+                        <Skeleton width="70%" height={16} style={{ marginBottom: 6 }} />
+                        <Skeleton width="40%" height={12} />
+                     </View>
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                     <Skeleton width={120} height={14} />
+                     <Skeleton width={60} height={20} borderRadius={10} />
+                  </View>
+                </View>
+              ))}
+            </View>
+          ) : reminders.length > 0 ? (
+            reminders.map((reminder: any) => {
+              const style = getCategoryStyle(reminder.documentId?.documentCategory || "Other");
+              const IconComp = ({
+                Globe, User, CreditCard, CheckSquare, Baby, Home, Briefcase, GraduationCap, 
+                DollarSign, ShieldCheck, Car, Plane, Landmark, Zap, BadgeCheck, Activity, 
+                Utensils, Shield, Languages, FileText
+              } as any)[style.icon] || FileText;
 
-          {/* Tomorrow Section */}
-          <Text style={styles.sectionLabel}>TOMORROW</Text>
-          <ReminderCard
-            title="Home Warranty Check"
-            subtitle="HVAC System"
-            time="Tomorrow, 10:00 AM"
-            tag="ONE-TIME"
-            icon={<Home size={20} color={colors.main} />}
-          />
-          <ReminderCard
-            title="Passport Expiry"
-            subtitle="Document #U88291"
-            time="Nov 24, 2:00 PM"
-            tag="DECADE"
-            icon={<FileText size={20} color={colors.main} />}
-          />
+              return (
+                <ReminderCard
+                  key={reminder._id}
+                  title={reminder.title}
+                  subtitle={reminder.message}
+                  time={new Date(reminder.remindAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                  tag={reminder.recurrence.toUpperCase()}
+                  icon={<IconComp size={20} color={style.colors[1]} />}
+                  tagColor={style.colors[1]}
+                  onEdit={() => router.push({ pathname: "/(protected)/add-reminder", params: { id: reminder._id } })}
+                  onDelete={() => handleDelete(reminder._id)}
+                />
+              );
+            })
+          ) : (
+            <View style={{ alignItems: 'center', marginTop: 40 }}>
+              <Text style={{ color: colors.mutedText, fontSize: 16 }}>No {apiFilter} reminders found.</Text>
+            </View>
+          )}
         </ScrollView>
 
         {/* Floating Action Button */}
@@ -107,26 +172,30 @@ export default function RemindersScreen() {
 }
 
 // Components
-const ReminderCard = ({ title, subtitle, time, tag, icon, hasBorder }: any) => (
+const ReminderCard = ({ title, subtitle, time, tag, icon, hasBorder, tagColor, onEdit, onDelete }: any) => (
   <View style={[styles.card, hasBorder && styles.cardBordered]}>
     <View style={styles.cardHeader}>
-      <View style={styles.iconCircle}>{icon}</View>
+      <View style={[styles.iconCircle, { backgroundColor: `${tagColor || colors.main}20` }]}>{icon}</View>
       <View style={{ flex: 1, marginLeft: 12 }}>
         <Text style={styles.cardTitle}>{title}</Text>
         <Text style={styles.cardSubtitle}>{subtitle}</Text>
       </View>
       <View style={styles.cardActions}>
-        <Pencil size={18} color={colors.subtleText} style={{ marginRight: 10 }} />
-        <Clock size={18} color={colors.subtleText} />
+        <TouchableOpacity onPress={onEdit}>
+          <Pencil size={18} color={colors.subtleText} style={{ marginRight: 12 }} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onDelete}>
+          <Trash2 size={18} color="#ef4444" />
+        </TouchableOpacity>
       </View>
     </View>
     <View style={styles.cardFooter}>
       <View style={styles.timeRow}>
-        <Calendar size={14} color={colors.main} />
+        <Calendar size={14} color={tagColor || colors.main} />
         <Text style={styles.timeText}>{time}</Text>
       </View>
-      <View style={styles.tagBadge}>
-        <Text style={styles.tagText}>{tag}</Text>
+      <View style={[styles.tagBadge, { backgroundColor: `${tagColor || colors.main}20` }]}>
+        <Text style={[styles.tagText, { color: tagColor || colors.main }]}>{tag}</Text>
       </View>
     </View>
   </View>
@@ -188,7 +257,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "rgba(254, 212, 76, 0.2)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -207,12 +275,11 @@ const styles = StyleSheet.create({
   timeRow: { flexDirection: "row", alignItems: "center" },
   timeText: { color: colors.text, fontSize: 14, marginLeft: 8, fontWeight: "500" },
   tagBadge: {
-    backgroundColor: "rgba(254, 212, 76, 0.25)",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
   },
-  tagText: { color: colors.text, fontSize: 10, fontWeight: "bold" },
+  tagText: { fontSize: 10, fontWeight: "bold" },
 
   // Navigation
   fab: {
