@@ -95,7 +95,7 @@ export default function AuthScreen() {
         email: values.email,
         password: values.password,
         confirmPassword: values.confirmPassword,
-        twoFactorEnabled: values.faceLockEnabled,
+        twoFactorEnabled: false,
       }).unwrap();
 
       const loginResponse = await login({
@@ -292,6 +292,12 @@ export default function AuthScreen() {
                     </View>
                   )}
                 />
+                <CustomButton
+                  title={isRegistering || isLoggingIn ? "Creating account..." : "Create Account"}
+                  onPress={signupForm.handleSubmit(handleSignup)}
+                  disabled={isRegistering || isLoggingIn}
+                  style={{ marginTop: 10 }}
+                />
               </React.Fragment>
             ) : (
               <React.Fragment key="login">
@@ -328,35 +334,28 @@ export default function AuthScreen() {
                     />
                   )}
                 />
-                <TouchableOpacity
-                  style={styles.biometricButton}
-                  onPress={() => void handleBiometricSignIn()}
-                  activeOpacity={0.8}
-                >
-                  <Fingerprint size={22} color={colors.btnText} strokeWidth={1.8} />
-                  <Text style={styles.biometricButtonText}>Sign in with Biometrics</Text>
-                </TouchableOpacity>
+                <CustomButton
+                  title={isLoggingIn ? "Signing in..." : "Sign In"}
+                  onPress={loginForm.handleSubmit(handleLogin)}
+                  disabled={isLoggingIn}
+                  style={{ marginTop: 10 }}
+                />
               </React.Fragment>
             )}
           </View>
 
-          <CustomButton
-            title={
-              isSignup
-                ? isRegistering || isLoggingIn
-                  ? "Creating account..."
-                  : "Create Account"
-                : isLoggingIn
-                  ? "Signing in..."
-                  : "Sign In"
-            }
-            onPress={
-              isSignup
-                ? signupForm.handleSubmit(handleSignup)
-                : loginForm.handleSubmit(handleLogin)
-            }
-            disabled={isSignup ? isRegistering || isLoggingIn : isLoggingIn}
-          />
+          {isReturningUser && !isSignup && (
+            <TouchableOpacity
+              style={[styles.biometricButton, { marginTop: 20 }]}
+              onPress={() => void handleBiometricSignIn()}
+              activeOpacity={0.8}
+            >
+              <Fingerprint size={22} color={colors.btnText} strokeWidth={1.8} />
+              <Text style={styles.biometricButtonText}>Sign in with Biometrics</Text>
+            </TouchableOpacity>
+          )}
+
+
           {!isSignup && (
             <TouchableOpacity
               style={styles.forgotButton}

@@ -39,11 +39,7 @@ export default function OnboardingScreen() {
     return (
       <SplashScreen
         onFinish={() => {
-          if (isLogged) {
-            router.replace("/(auth)");
-          } else {
-            router.replace("/(auth)");
-          }
+          router.replace("/(auth)");
           setIsSplash(false);
         }}
       />

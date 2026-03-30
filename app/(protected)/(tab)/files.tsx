@@ -1,15 +1,34 @@
 import { BG } from "@/components/BG";
+import { Skeleton } from "@/components/Skeleton";
+import { CATEGORIES, getCategoryStyle } from "@/config/categories";
 import { colors } from "@/config/colors";
 import { useGetDocumentsQuery } from "@/store/document";
+import { router, useLocalSearchParams } from "expo-router";
 import {
+  Activity,
+  Baby,
+  BadgeCheck,
+  Briefcase,
   Car,
+  CheckSquare,
   ChevronRight,
+  CreditCard,
+  DollarSign,
   FileText,
+  Globe,
+  GraduationCap,
   Home,
+  Landmark,
+  Languages,
+  Plane,
   Search,
-  ShieldPlus,
+  Shield,
+  ShieldCheck,
+  User,
+  Utensils,
+  Zap,
 } from "lucide-react-native";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   ImageBackground,
@@ -52,27 +71,45 @@ export const timeAgo = (dateString: string) => {
 };
 
 export const getCategoryIcon = (
-  type: string,
+  category: string,
   size = 18,
   customColor?: string,
 ) => {
-  const t = type?.toLowerCase();
-  if (
-    t === "vehicle" ||
-    t === "vehicles" ||
-    t === "driving_license" ||
-    t === "vehicle_registration"
-  )
-    return <Car color={customColor || "#f97316"} size={size} />;
-  if (t === "home" || t === "property")
-    return <Home color={customColor || colors.main} size={size} />;
-  if (t === "health" || t === "medical_record")
-    return <ShieldPlus color={customColor || "#a855f7"} size={size} />;
-  return <FileText color={customColor || colors.mutedText} size={size} />;
+  const style = getCategoryStyle(category || "Other");
+  const IconComp =
+    {
+      Globe,
+      User,
+      CreditCard,
+      CheckSquare,
+      Baby,
+      Home,
+      Briefcase,
+      GraduationCap,
+      DollarSign,
+      ShieldCheck,
+      Car,
+      Plane,
+      Landmark,
+      Zap,
+      BadgeCheck,
+      Activity,
+      Utensils,
+      Shield,
+      Languages,
+      FileText,
+    }[style.icon] || FileText;
+
+  return <IconComp color={customColor || style.colors[1]} size={size} />;
 };
 
 export default function MyRecords() {
-  const [activeFilter, setActiveFilter] = useState("All Records");
+  const params = useLocalSearchParams();
+  const initialCategory =
+    (Array.isArray(params.category) ? params.category[0] : params.category) ||
+    "All Records";
+
+  const [activeFilter, setActiveFilter] = useState(initialCategory);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -85,33 +122,18 @@ export default function MyRecords() {
 
   const categoryParam =
     activeFilter === "All Records" ? undefined : activeFilter.toLowerCase();
-    
+
   const queryParams: Record<string, any> = {
     documentCategory: categoryParam,
   };
-  
+
   if (debouncedSearch.trim()) {
     queryParams.search = debouncedSearch.trim();
   }
 
   const { data: response, isLoading } = useGetDocumentsQuery(queryParams);
-  
 
   const documents = response?.data || [];
-
-  const recentUploads = [...documents]
-    .sort(
-      (a: any, b: any) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    )
-    .slice(0, 3);
-
-  const recentActivity = [...documents]
-    .sort(
-      (a: any, b: any) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-    )
-    .slice(0, 3);
 
   return (
     <BG style={styles.container}>
@@ -140,14 +162,7 @@ export default function MyRecords() {
             showsHorizontalScrollIndicator={false}
             style={styles.filterScroll}
           >
-            {[
-              "All Records",
-              "Health",
-              "Personal",
-              "Vehicle",
-              "Insurance",
-              "Legal",
-            ].map((filter) => (
+            {["All Records", ...CATEGORIES].map((filter) => (
               <TouchableOpacity
                 key={filter}
                 onPress={() => setActiveFilter(filter)}
@@ -170,13 +185,48 @@ export default function MyRecords() {
 
           {/* Highlighted Records (Cards) */}
           {isLoading ? (
-            <View style={{ paddingVertical: 40, alignItems: "center" }}>
-              <ActivityIndicator size="large" color={colors.main} />
+            <View style={{ marginTop: 10 }}>
+              {[1, 2, 3].map((i) => (
+                <View
+                  key={i}
+                  style={[styles.recordCard, { padding: 15, marginBottom: 15 }]}
+                >
+                  <View style={{ flexDirection: "row" }}>
+                    <Skeleton width={80} height={80} borderRadius={12} />
+                    <View
+                      style={{
+                        flex: 1,
+                        marginLeft: 15,
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Skeleton
+                        width="80%"
+                        height={18}
+                        style={{ marginBottom: 10 }}
+                      />
+                      <Skeleton width="50%" height={14} />
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      marginTop: 15,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Skeleton width={100} height={24} borderRadius={8} />
+                    <Skeleton width={80} height={14} />
+                  </View>
+                </View>
+              ))}
             </View>
           ) : documents.length > 0 ? (
             documents.map((doc: any) => (
               <RecordCard
                 key={doc._id}
+                id={doc._id}
                 title={doc.title || doc.originalName || "Document"}
                 sub={
                   doc.extractedData?.documentNumber
@@ -185,7 +235,7 @@ export default function MyRecords() {
                 }
                 date={new Date(doc.createdAt).toLocaleDateString()}
                 status="ACTIVE"
-                type={doc.documentCategory?.toLowerCase()}
+                type={doc.documentCategory}
                 showButton={false}
                 fileUrl={doc.fileUrl}
               />
@@ -202,52 +252,7 @@ export default function MyRecords() {
             </Text>
           )}
 
-          {/* Recent Uploads Section */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Uploads</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAll}>View All</Text>
-            </TouchableOpacity>
-          </View>
-
-          {recentUploads.length > 0 ? (
-            recentUploads.map((doc: any) => (
-              <FileItem
-                key={`up-${doc._id}`}
-                icon={getCategoryIcon(doc.documentCategory, 18)}
-                name={doc.title || doc.originalName || "Document"}
-                info={`${extractFormat(doc.mimeType)} - ${formatBytes(doc.size)}`}
-                time={timeAgo(doc.createdAt)}
-              />
-            ))
-          ) : (
-            <Text style={{ color: colors.mutedText, textAlign: "center", marginBottom: 15 }}>
-              No recent uploads.
-            </Text>
-          )}
-
-          {/* Recent Activity Section */}
-          <View style={[styles.sectionHeader, { marginTop: 10 }]}>
-            <Text style={styles.sectionTitle}>Recent Activity</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAll}>View All</Text>
-            </TouchableOpacity>
-          </View>
-
-          {recentActivity.length > 0 ? (
-            recentActivity.map((doc: any) => (
-              <ActivityItem
-                key={`act-${doc._id}`}
-                icon={getCategoryIcon(doc.documentCategory, 18)}
-                title={doc.title || doc.originalName || "Document"}
-                sub={`Updated ${timeAgo(doc.updatedAt)}`}
-              />
-            ))
-          ) : (
-            <Text style={{ color: colors.mutedText, textAlign: "center", marginBottom: 15 }}>
-              No recent activity.
-            </Text>
-          )}
+          <RecentActivitySection />
         </ScrollView>
       </SafeAreaView>
     </BG>
@@ -256,17 +261,98 @@ export default function MyRecords() {
 
 // --- Sub-components ---
 
-const RecordCard = ({ title, sub, date, status, type, showButton, fileUrl }: any) => {
+export const RecentActivitySection = () => {
+  const { data: response, isLoading } = useGetDocumentsQuery({});
+
+  const documents = response?.data || [];
+
+  const recentUploads = [...documents]
+    .sort(
+      (a: any, b: any) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
+    .slice(0, 3);
+
+  const recentActivity = [...documents]
+    .sort(
+      (a: any, b: any) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    )
+    .slice(0, 3);
+
+  if (isLoading) {
+    return (
+      <View style={{ paddingVertical: 20, alignItems: "center" }}>
+        <ActivityIndicator size="small" color={colors.main} />
+      </View>
+    );
+  }
+
+  return (
+    <View>
+      {/* Recent Uploads Section */}
+      {recentUploads.length > 0 && (
+        <>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Uploads</Text>
+          </View>
+
+          {recentUploads.map((doc: any) => (
+            <FileItem
+              key={`up-${doc._id}`}
+              id={doc._id}
+              icon={getCategoryIcon(doc.documentCategory, 18)}
+              name={doc.title || doc.originalName || "Document"}
+              info={`${extractFormat(doc.mimeType)} - ${formatBytes(doc.size)}`}
+              time={timeAgo(doc.createdAt)}
+            />
+          ))}
+        </>
+      )}
+
+      {/* Recent Activity Section */}
+      {recentActivity.length > 0 && (
+        <>
+          <View style={[styles.sectionHeader, { marginTop: 10 }]}>
+            <Text style={styles.sectionTitle}>Recent Activity</Text>
+          </View>
+
+          {recentActivity.map((doc: any) => (
+            <ActivityItem
+              key={`act-${doc._id}`}
+              id={doc._id}
+              icon={getCategoryIcon(doc.documentCategory, 18)}
+              title={doc.title || doc.originalName || "Document"}
+              sub={`Updated ${timeAgo(doc.updatedAt)}`}
+            />
+          ))}
+        </>
+      )}
+    </View>
+  );
+};
+
+const RecordCard = ({
+  id,
+  title,
+  sub,
+  date,
+  status,
+  type,
+  showButton,
+  fileUrl,
+}: any) => {
   const isExpiring = status === "EXPIRING";
 
   const renderIcon = () => (
-    <View style={styles.imageOverlayIcon}>
-      {getCategoryIcon(type, 20)}
-    </View>
+    <View style={styles.imageOverlayIcon}>{getCategoryIcon(type, 20)}</View>
   );
 
   return (
-    <View style={styles.recordCard}>
+    <TouchableOpacity
+      style={styles.recordCard}
+      onPress={() => router.push(`/(protected)/document/${id}` as any)}
+    >
       <View style={styles.cardTop}>
         {fileUrl ? (
           <ImageBackground
@@ -321,23 +407,29 @@ const RecordCard = ({ title, sub, date, status, type, showButton, fileUrl }: any
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
-export const FileItem = ({ icon, name, info, time }: any) => (
-  <View style={styles.fileItem}>
+export const FileItem = ({ id, icon, name, info, time }: any) => (
+  <TouchableOpacity
+    style={styles.fileItem}
+    onPress={() => router.push(`/(protected)/document/${id}` as any)}
+  >
     <View style={styles.fileIconBox}>{icon}</View>
     <View style={{ flex: 1, marginLeft: 12 }}>
       <Text style={styles.fileName}>{name}</Text>
       <Text style={styles.fileInfo}>{info}</Text>
     </View>
     <Text style={styles.fileTime}>{time}</Text>
-  </View>
+  </TouchableOpacity>
 );
 
-export const ActivityItem = ({ icon, title, sub }: any) => (
-  <TouchableOpacity style={styles.activityItem}>
+export const ActivityItem = ({ id, icon, title, sub }: any) => (
+  <TouchableOpacity
+    style={styles.activityItem}
+    onPress={() => router.push(`/(protected)/document/${id}` as any)}
+  >
     <View style={styles.activityIconBox}>{icon}</View>
     <View style={{ flex: 1, marginLeft: 12 }}>
       <Text style={styles.activityTitle}>{title}</Text>

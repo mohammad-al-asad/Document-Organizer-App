@@ -4,6 +4,7 @@ import { colors } from "@/config/colors";
 import {
   useConfirmDocumentMutation,
   useUploadDocumentMutation,
+  useUpdateDocumentMutation,
 } from "@/store/document";
 import { router, useLocalSearchParams } from "expo-router";
 import {
@@ -39,28 +40,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const CATEGORIES = [
-  "Passport",
-  "National ID",
-  "Driving License",
-  "Voter ID",
-  "Birth Certificate",
-  "Residence Permit",
-  "Work Permit",
-  "Student ID",
-  "Tax ID",
-  "Insurance Card",
-  "Vehicle Registration",
-  "Visa",
-  "Bank Statement",
-  "Utility Bill",
-  "Employee ID",
-  "Health Card",
-  "Ration Card",
-  "Social Security Card",
-  "Immigration Document",
-  "Other",
-];
+import { CATEGORIES } from "@/config/categories";
 
 export default function RecordDetails() {
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -69,12 +49,15 @@ export default function RecordDetails() {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
+  const [documentId, setDocumentId] = useState<string | null>(null);
 
   // RTK Query hooks
   const [uploadDocument, { isLoading: isUploading }] =
     useUploadDocumentMutation();
   const [confirmDocument, { isLoading: isConfirming }] =
     useConfirmDocumentMutation();
+  const [updateDocument, { isLoading: isUpdating }] =
+    useUpdateDocumentMutation();
 
   // Form states
   const [category, setCategory] = useState<string>("");
@@ -169,21 +152,36 @@ export default function RecordDetails() {
         extractedDataPayload.shortDescription = shortDescription;
       }
 
-      const payload = {
-        draftId,
-        title,
-        documentCategory: category,
-        extractedData: extractedDataPayload,
-      };
-
-      const result = await confirmDocument(payload).unwrap();
-      if (result.success) {
-        setIsSaved(true);
+      if (documentId) {
+        const payload = {
+          title,
+          documentCategory: category,
+          extractedData: extractedDataPayload,
+        };
+        const result = await updateDocument({ id: documentId, body: payload }).unwrap();
+        if (result.success) {
+          setIsSaved(true);
+        } else {
+          console.error("Update failed:", result.message);
+        }
       } else {
-        console.error("Save failed:", result.message);
+        const payload = {
+          draftId,
+          title,
+          documentCategory: category,
+          extractedData: extractedDataPayload,
+        };
+
+        const result = await confirmDocument(payload).unwrap();
+        if (result.success) {
+          if (result.data?._id) setDocumentId(result.data._id);
+          setIsSaved(true);
+        } else {
+          console.error("Save failed:", result.message);
+        }
       }
     } catch (error) {
-      Alert.alert("error", "Error saving document");
+      Alert.alert("Error", "Error saving document");
       console.error("Error saving document:", error);
     }
   };
@@ -275,9 +273,7 @@ export default function RecordDetails() {
               <ArrowLeft color={colors.text} size={24} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Record Details</Text>
-            <TouchableOpacity>
-              <Text style={styles.cancelText}>Cancel</Text>
-            </TouchableOpacity>
+            <View style={{ width: 24 }} />
           </View>
 
           {isUploading ? (
@@ -445,14 +441,17 @@ export default function RecordDetails() {
 
               {/* Reminder Card */}
               {!isUploading && isSaved && (
-                <TouchableOpacity style={styles.reminderCard}>
+                <TouchableOpacity 
+                  style={styles.reminderCard}
+                  onPress={() => router.push({ pathname: "/(protected)/add-reminder", params: { documentId: documentId || "" } })}
+                >
                   <View style={styles.reminderIconBox}>
                     <Bell color={colors.main} size={20} />
                   </View>
                   <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={styles.reminderTitle}>Renewal Reminder</Text>
+                    <Text style={styles.reminderTitle}>Add Reminder</Text>
                     <Text style={styles.reminderSub}>
-                      Active - Sep 15, 2024
+                      Set alert for this record
                     </Text>
                   </View>
                   <ChevronRight color={colors.mutedText} size={20} />
@@ -462,7 +461,7 @@ export default function RecordDetails() {
               {/* Full Width Save Button */}
               {!isSaved && (
                 <CustomButton
-                  title={isConfirming ? "Saving..." : "Save Record"}
+                  title={isConfirming || isUpdating ? "Saving..." : "Save Record"}
                   onPress={handleSave}
                   style={styles.saveBtn}
                   textStyle={styles.saveBtnText}
@@ -479,6 +478,7 @@ export default function RecordDetails() {
           <ActionButton
             icon={<Edit2 color={colors.text} size={20} />}
             label="Edit"
+            onPress={() => setIsSaved(false)}
           />
           <ActionButton
             icon={<Share2 color={colors.text} size={20} />}
@@ -499,8 +499,8 @@ export default function RecordDetails() {
   );
 }
 
-const ActionButton = ({ icon, label, isDelete }: any) => (
-  <TouchableOpacity style={styles.actionBtn}>
+const ActionButton = ({ icon, label, isDelete, onPress }: any) => (
+  <TouchableOpacity style={styles.actionBtn} onPress={onPress}>
     <View style={[styles.actionIconCircle, isDelete && styles.deleteCircle]}>
       {icon}
     </View>

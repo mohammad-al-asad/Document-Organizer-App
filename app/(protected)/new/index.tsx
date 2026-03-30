@@ -77,9 +77,7 @@ export default function DocumentsAndNotes() {
             <ArrowLeft color={colors.text} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Documents & Notes</Text>
-          <TouchableOpacity>
-            <Text style={styles.cancelText}>Cancel</Text>
-          </TouchableOpacity>
+          <View style={{ width: 24 }} /> 
         </View>
 
         <ScrollView
