@@ -60,9 +60,3 @@ export async function authenticateWithBiometrics() {
       : result.error ?? "Biometric authentication failed.",
   };
 }
-
-// ── Backwards-compat aliases so nothing outside breaks immediately ──────────
-/** @deprecated Use canUseBiometrics() */
-export const canUseFaceLock = canUseBiometrics;
-/** @deprecated Use authenticateWithBiometrics() */
-export const authenticateWithFaceLock = authenticateWithBiometrics;

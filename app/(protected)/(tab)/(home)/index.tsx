@@ -1,20 +1,40 @@
 import { BG } from "@/components/BG";
+import { Skeleton } from "@/components/Skeleton";
+import { getCategoryStyle } from "@/config/categories";
 import { colors } from "@/config/colors";
+import { useGetDocumentsQuery } from "@/store/document";
+import { useAppSelector } from "@/store/hooks";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import {
-  AlertTriangle,
+  Activity,
+  Baby,
+  BadgeCheck,
   Bell,
+  Briefcase,
   Car,
+  CheckSquare,
   ChevronRight,
-  Clock,
+  CreditCard,
+  DollarSign,
   FileText,
   FolderOpen,
+  Globe,
+  GraduationCap,
   Home,
+  Landmark,
+  Languages,
+  Plane,
+  Shield,
+  ShieldCheck,
   ShieldPlus,
-  Wallet,
+  User,
+  Utensils,
+  Zap,
 } from "lucide-react-native";
 import React from "react";
 import {
+  Dimensions,
   Image,
   ScrollView,
   StyleSheet,
@@ -23,9 +43,28 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ActivityItem, FileItem } from "../files";
+import { verticalScale } from "react-native-size-matters";
+import { RecentActivitySection } from "../files";
+
+const { width } = Dimensions.get("window");
+const CARD_WIDTH = width * 0.85;
 
 export default function Dashboard() {
+  const user = useAppSelector((state) => state.auth.user);
+
+  const currentHour = new Date().getHours();
+  const greeting =
+    currentHour < 12
+      ? "Good Morning,"
+      : currentHour < 18
+        ? "Good Afternoon,"
+        : "Good Evening,";
+
+  const { data: response, isLoading: docsLoading } = useGetDocumentsQuery({
+    limit: 5,
+  });
+  const documents = response?.data || [];
+
   return (
     <BG style={styles.container}>
       <SafeAreaView style={{ flex: 1, paddingTop: 10 }}>
@@ -33,16 +72,24 @@ export default function Dashboard() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
+          {/* Header Section */}
           <View style={styles.header}>
             <View style={styles.profileContainer}>
-              <Image
-                source={{ uri: "https://avatar.iran.liara.run/public/3" }}
-                style={styles.avatar}
-              />
+              <View style={styles.avatar}>
+                {user?.profileImage ? (
+                  <Image
+                    source={{ uri: user.profileImage }}
+                    style={styles.avatarImage}
+                  />
+                ) : (
+                  <User color={colors.main} size={24} />
+                )}
+              </View>
               <View style={styles.greeting}>
-                <Text style={styles.subText}>Good Morning,</Text>
-                <Text style={styles.titleText}>Hi, Alex</Text>
+                <Text style={styles.subText}>{greeting}</Text>
+                <Text style={styles.titleText}>
+                  Hi, {user?.fullName?.split(" ")[0] || "User"}
+                </Text>
               </View>
             </View>
             <TouchableOpacity
@@ -56,128 +103,263 @@ export default function Dashboard() {
             </TouchableOpacity>
           </View>
 
-          {/* Total Assets Card */}
-          <View style={styles.assetCard}>
-            <View>
-              <Text style={styles.cardLabel}>Total Assets</Text>
-              <Text style={styles.assetAmount}>$124,500</Text>
-              <Text style={styles.growthText}>+12% this month</Text>
-            </View>
-            <View style={styles.walletIconContainer}>
-              <Wallet color={colors.main} size={24} />
-            </View>
-          </View>
-
-          {/* Stats Row */}
-          <View style={styles.statsRow}>
-            <View style={[styles.statBox, { marginRight: 10 }]}>
-              <View
-                style={[
-                  styles.iconCircle,
-                  { backgroundColor: "rgba(249, 115, 22, 0.2)" },
-                ]}
+          {/* Document Highlights Carousel */}
+          <View style={styles.carouselSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>My Documents</Text>
+              <TouchableOpacity
+                onPress={() => router.push("/(protected)/(tab)/files")}
               >
-                <AlertTriangle color="#f97316" size={20} />
-              </View>
-              <Text style={styles.statNumber}>3</Text>
-              <Text style={styles.statLabel}>Critical Alerts</Text>
+                <Text style={styles.viewAll}>View All</Text>
+              </TouchableOpacity>
             </View>
 
-            <View style={[styles.statBox, { marginLeft: 10 }]}>
-              <View
-                style={[
-                  styles.iconCircle,
-                  { backgroundColor: "rgba(168, 85, 247, 0.2)" },
-                ]}
+            {docsLoading ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.carouselContainer}
               >
-                <Clock color="#a855f7" size={20} />
-              </View>
-              <Text style={styles.statNumber}>5</Text>
-              <Text style={styles.statLabel}>Renewals</Text>
-            </View>
+                {[1, 2].map((i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.modernCard,
+                      { backgroundColor: colors.surface, padding: 20 },
+                    ]}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        marginBottom: 15,
+                      }}
+                    >
+                      <Skeleton width={80} height={12} />
+                      <Skeleton width={30} height={30} borderRadius={15} />
+                    </View>
+                    <Skeleton
+                      width="90%"
+                      height={24}
+                      style={{ marginBottom: 20 }}
+                    />
+                    <View style={styles.cardDivider} />
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <View style={{ width: "45%", marginBottom: 15 }}>
+                        <Skeleton
+                          width="40%"
+                          height={10}
+                          style={{ marginBottom: 5 }}
+                        />
+                        <Skeleton width="100%" height={14} />
+                      </View>
+                      <View style={{ width: "45%", marginBottom: 15 }}>
+                        <Skeleton
+                          width="40%"
+                          height={10}
+                          style={{ marginBottom: 5 }}
+                        />
+                        <Skeleton width="100%" height={14} />
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+            ) : documents.length > 0 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                pagingEnabled
+                snapToInterval={CARD_WIDTH + 15}
+                decelerationRate="fast"
+                contentContainerStyle={styles.carouselContainer}
+              >
+                {documents.map((doc: any) => (
+                  <ModernCarouselCard key={doc._id} doc={doc} />
+                ))}
+              </ScrollView>
+            ) : (
+              <TouchableOpacity
+                style={styles.emptyCard}
+                onPress={() => router.push("/(protected)/new")}
+              >
+                <FolderOpen color={colors.mutedText} size={32} />
+                <Text style={styles.emptyText}>No documents found</Text>
+                <Text style={styles.emptySubText}>
+                  Securely store your first record
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Categories Section */}
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Categories</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAll}>View All</Text>
-            </TouchableOpacity>
           </View>
 
           <CategoryItem
             icon={<Home color={colors.main} />}
-            title="Real Estate"
-            sub="2 Properties, 12 Docs"
+            title="Property"
+            sub="Properties, Docs"
+            onPress={() =>
+              router.push({
+                pathname: "/(protected)/(tab)/files",
+                params: { category: "Property" },
+              })
+            }
+          />
+          <CategoryItem
+            icon={<Globe color="#55a6f7" />}
+            title="Passport"
+            sub="Passport, Visa"
+            onPress={() =>
+              router.push({
+                pathname: "/(protected)/(tab)/files",
+                params: { category: "Passport" },
+              })
+            }
           />
           <CategoryItem
             icon={<Car color="#f97316" />}
             title="Vehicles"
-            sub="1 Car, 1 Motorcycle"
+            sub="Car, Motorcycle"
+            onPress={() =>
+              router.push({
+                pathname: "/(protected)/(tab)/files",
+                params: { category: "Vehicle" },
+              })
+            }
           />
           <CategoryItem
-            icon={<ShieldPlus color="#a855f7" />}
+            icon={<ShieldPlus color="#55a6f7" />}
             title="Health"
             sub="Records, Prescriptions"
+            onPress={() =>
+              router.push({
+                pathname: "/(protected)/(tab)/files",
+                params: { category: "Health" },
+              })
+            }
           />
           <CategoryItem
             icon={<FolderOpen color="#D1D5DB" />}
             title="Personal Docs"
             sub="Records, Prescriptions"
-          />
-
-          {/* Recent Uploads Section */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Uploads</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAll}>View All</Text>
-            </TouchableOpacity>
-          </View>
-
-          <FileItem
-            icon={<Home color={colors.main} size={18} />}
-            name="Property Tax Receipt"
-            info="PDF - 2.4 MB"
-            time="Just now"
-          />
-          <FileItem
-            icon={<Car color="#f97316" size={18} />}
-            name="Vehicle Registration"
-            info="IMG - 4.1 MB"
-            time="2h ago"
-          />
-
-          {/* Recent Activity Section */}
-          <View style={[styles.sectionHeader, { marginTop: 10 }]}>
-            <Text style={styles.sectionTitle}>Recent Activity</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAll}>View All</Text>
-            </TouchableOpacity>
-          </View>
-
-          <ActivityItem
-            icon={<FileText color="#3b82f6" size={18} />}
-            title="Car Insurance Policy"
-            sub="Updated 2h ago"
-          />
-          <ActivityItem
-            icon={
-              <View>
-                <FileText color={colors.text} size={18} />
-              </View>
+            onPress={() =>
+              router.push({
+                pathname: "/(protected)/(tab)/files",
+                params: { category: "Personal" },
+              })
             }
-            title="Warranty: Refrigerator"
-            sub="Added yesterday"
           />
+
+          {/* Recent Uploads & Activity Sections */}
+          <RecentActivitySection />
         </ScrollView>
       </SafeAreaView>
     </BG>
   );
 }
 
-// Sub-components for cleaner code
-const CategoryItem = ({ icon, title, sub }: any) => (
-  <TouchableOpacity style={styles.categoryItem}>
+// Sub-components
+const ModernCarouselCard = ({ doc }: any) => {
+  const style = getCategoryStyle(doc.documentCategory);
+
+  // Dynamic icon component
+  const IconComp =
+    {
+      Globe,
+      User,
+      CreditCard,
+      CheckSquare,
+      Baby,
+      Home,
+      Briefcase,
+      GraduationCap,
+      DollarSign,
+      ShieldCheck,
+      Car,
+      Plane,
+      Landmark,
+      Zap,
+      BadgeCheck,
+      Activity,
+      Utensils,
+      Shield,
+      Languages,
+      FileText,
+    }[style.icon] || FileText;
+
+  // Extract up to 4 significant fields
+  const fields = Object.entries(doc.extractedData || {})
+    .filter(([key]) => key !== "shortDescription")
+    .slice(0, 4)
+    .map(([key, value]) => ({
+      label: key
+        .replace(/([A-Z])/g, " $1")
+        .toUpperCase()
+        .trim(),
+      value: String(value),
+    }));
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={() => router.push(`/(protected)/document/${doc._id}` as any)}
+    >
+      <LinearGradient
+        colors={style.colors}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.modernCard}
+      >
+        <View style={styles.cardHeader}>
+          <Text style={styles.cardCategory}>
+            {doc.documentCategory.toUpperCase()}
+          </Text>
+          <IconComp color="rgba(255,255,255,0.8)" size={24} />
+        </View>
+
+        <Text style={styles.cardTitle}>{doc.title || "Untitled"}</Text>
+
+        <View style={styles.cardDivider} />
+
+        <View style={styles.cardContent}>
+          {fields.length > 0 ? (
+            <View style={styles.fieldsGrid}>
+              {fields.map((field, idx) => (
+                <View key={idx} style={styles.fieldItem}>
+                  <Text style={styles.fieldLabel}>{field.label}</Text>
+                  <Text style={styles.fieldValue} numberOfLines={1}>
+                    {field.value}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <View style={styles.placeholderBox}>
+              <Text style={styles.placeholderText}>
+                Document stored securely
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Subtle background glow effect */}
+        <View style={styles.glow} />
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+};
+
+const CategoryItem = ({ icon, title, sub, onPress }: any) => (
+  <TouchableOpacity style={styles.categoryItem} onPress={onPress}>
     <View style={styles.categoryIcon}>{icon}</View>
     <View style={{ flex: 1, marginLeft: 15 }}>
       <Text style={styles.categoryTitle}>{title}</Text>
@@ -203,6 +385,14 @@ const styles = StyleSheet.create({
     borderRadius: 22.5,
     borderWidth: 2,
     borderColor: colors.main,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.secondary,
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 22.5,
   },
   greeting: { marginLeft: 12 },
   subText: { color: colors.mutedText, fontSize: 14 },
@@ -305,4 +495,115 @@ const styles = StyleSheet.create({
   },
   categoryTitle: { color: colors.text, fontSize: 16, fontWeight: "600" },
   categorySub: { color: colors.mutedText, fontSize: 13 },
+
+  // Modern Carousel Styles
+  carouselSection: {
+    marginBottom: 30,
+  },
+  carouselContainer: {
+    paddingBottom: 10,
+  },
+  modernCard: {
+    width: CARD_WIDTH,
+    height: verticalScale(190),
+    borderRadius: 24,
+    padding: 20,
+    marginRight: 15,
+    overflow: "hidden",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  cardCategory: {
+    color: "rgba(255,255,255,0.7)",
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1.2,
+  },
+  cardTitle: {
+    color: "#FFF",
+    fontSize: 22,
+    fontWeight: "700",
+    marginTop: 8,
+  },
+  cardDivider: {
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    marginVertical: 15,
+  },
+  cardContent: {
+    flex: 1,
+  },
+  fieldsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  fieldItem: {
+    width: "48%",
+    marginBottom: 10,
+  },
+  fieldLabel: {
+    color: "rgba(255,255,255,0.6)",
+    fontSize: 9,
+    fontWeight: "700",
+    marginBottom: 2,
+  },
+  fieldValue: {
+    color: "#FFF",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  loaderContainer: {
+    height: 190,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyCard: {
+    height: 190,
+    backgroundColor: colors.secondary,
+    borderRadius: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: colors.border,
+  },
+  emptyText: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 10,
+  },
+  emptySubText: {
+    color: colors.mutedText,
+    fontSize: 12,
+    marginTop: 4,
+  },
+  placeholderBox: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  placeholderText: {
+    color: "rgba(255,255,255,0.8)",
+    fontStyle: "italic",
+    fontSize: 12,
+  },
+  glow: {
+    position: "absolute",
+    top: -50,
+    right: -50,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: "rgba(255,255,255,0.1)",
+  },
 });
